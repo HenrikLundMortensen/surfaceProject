@@ -12,7 +12,7 @@ for i in range(0,100):
     f.append(grid)
 
 test = fv.getFeatureVectors(f)
-test = [fs.findOptimum(5)]
-test2 = fv.getFeatureVectors(test)
-pf.plotFeatureMap(test2)
+#test = [fs.findOptimum(5)]
+#test2 = fv.getFeatureVectors(test)
+pf.plotFeatureMap(test)
 
