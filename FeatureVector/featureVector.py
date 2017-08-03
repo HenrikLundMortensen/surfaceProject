@@ -42,7 +42,8 @@ def calcDensities(nA):
 def getFeatureVectorsSingleGrid(grid):
 
     # Get size
-    N = grid.shape[0]
+    N = np.size(grid,0)
+
 
     # Define list of feature vectors - initially empty
     f = []
@@ -85,7 +86,7 @@ def getFeatureVectors(G):
     
             
 
-    
+
     
     
     
