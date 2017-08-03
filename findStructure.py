@@ -26,17 +26,16 @@ def findOptimum(size):  # Find optimal structure
     surface = ce.randSurface(size)
     E = ce.calculateEnergy(surface,size)
     iter = 0
-    while True:
+    while True:        
         iter+=1
         surface_temp = np.copy(surface)
         shuffle(surface,4)
         E2 = ce.calculateEnergy(surface,size)
         E1 = ce.calculateEnergy(surface_temp,size)
         if E2 == correctEnergy:
-            E = E2
             break
         dE = E2 - E1
-        if dE > 0:
-            if np.exp(-dE) < np.random.random():
-                surface = np.copy(surface_temp)
+        if dE > 0:                               # We have a worse new surface
+            if np.exp(-dE) < np.random.random(): # If much worse, higher chance to disregard
+                surface = np.copy(surface_temp)  # Disregard new surface
     return surface
