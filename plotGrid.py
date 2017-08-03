@@ -56,10 +56,10 @@ def initializePlotGridFigure(N):
     ax.plot([],[],'ro',markersize =7)
 
     # Define the shearing matrix
-    shearMat = np.array([[1, 0.5],[0,1]])
+    # shearMat = np.array([[1, 0.5],[0,1]])
 
-    cornerCoords = [[N, 2*N,N,2*N],[N,N,2*N,2*N]]
-    ax.plot(cornerCoords[0],cornerCoords[1],'b',linewidth=2)
+    # cornerCoords = [[N, 2*N,N,2*N],[N,N,2*N,2*N]]
+    # ax.plot(cornerCoords[0],cornerCoords[1],'b',linewidth=2)
             
     return fig
 
