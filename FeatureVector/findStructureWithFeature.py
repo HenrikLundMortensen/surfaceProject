@@ -2,14 +2,6 @@ from calcEnergyWithFeature import *
 import random
 import numpy as np
 
-import os,sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
-
-import calcenergy as ce
-import plotGrid as pg
-
 def randSurface(N): # Creates random surface matrix
     o = 3*N - 9
     ag = N*N - 3*N + 2
@@ -57,15 +49,17 @@ def findOptimum(size):  # Find optimal structure
     return surface
 
 if __name__ == '__main__':
-    import os,sys,inspect
-    import calcenergy as ce
-    import plotGrid as pg
-    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    parentdir = os.path.dirname(currentdir)
-    sys.path.insert(0,parentdir)
+#    import os,sys,inspect
+#    import calcenergy as ce
+#    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+#    parentdir = os.path.dirname(currentdir)
+#    sys.path.insert(0,parentdir)
 
+ #   import calcenergy as ce
+    import plotGrid as pg
+    
     surface = findOptimum(5)
     print(surface)
-    print(ce.calculateEnergy(surface,5))
+#    print(pg.calculateEnergy(surface,5))
     fig = pg.initializePlotGridFigure(5)
     pg.plotGrid(surface,fig)
