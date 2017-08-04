@@ -1,6 +1,6 @@
 import numpy as np
-import FeatureVector.featureVector as fv
-import calcenergy as ce
+import surfaceProject.FeatureVector.featureVector as fv
+import surfaceProject.energycalculations.calcenergy as ce
 
 N=5
 grid = ce.randSurface(N)
