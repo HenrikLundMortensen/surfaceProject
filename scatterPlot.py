@@ -9,9 +9,7 @@ for i in range(0,2):
     grid = ce.randSurface(5)
     f.append(grid)
 
-#test = fv.getBondFeatureVectors(f)
-#test = [fs.findOptimum(5)]
-test2 = fv.getBondFeatureVectors(f)
-#pf.plotFeatureMap(test2)
-print(test2)
+test = fv.getFeatureVectors(f)
+pf.plotFeatureMap(test)
+
 

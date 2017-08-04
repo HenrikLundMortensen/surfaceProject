@@ -96,7 +96,6 @@ def getBondFeatureVectorsSingleGrid(grid):
 def getFeatureVectorsSingleGrid(grid):
 
     # Get size
-
     N = np.size(grid,0)
 
 
