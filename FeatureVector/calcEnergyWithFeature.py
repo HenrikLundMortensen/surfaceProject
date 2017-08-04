@@ -1,6 +1,6 @@
 import numpy as np
 from featureVector import *
-from plotGrid import *
+#from plotGrid import *
 
 def EFeature(f):
     """
@@ -58,8 +58,8 @@ def EBondFeature(f):
         E -= 2*f[1]
         E -= 2*np.exp(-(f[0] - 0.8)**2/(0.8**2))
         E -= np.exp(-(f[3] - 1)**2/(0.8**2)) + np.exp(-(f[3] - 2)**2/(0.8**2))
-	E -= np.exp(-(f[4]-(3+2*np.sqrt(3)+2))**2/(0.8**2)) + np.exp(-(f[4]-1)**2/(0.8**2))
-	E -= np.exp(-(f[5] - 2*(1+np.sqrt(3)))**2/(0.8**2)) + np.exp(-(f[5] - 2*(1+2*np.sqrt(3)+2))**2/(0.8**2))
+        E -= np.exp(-(f[4]-(3+2*np.sqrt(3)+2))**2/(0.8**2)) + np.exp(-(f[4]-1)**2/(0.8**2))
+        E -= np.exp(-(f[5] - 2*(1+np.sqrt(3)))**2/(0.8**2)) + np.exp(-(f[5] - 2*(1+2*np.sqrt(3)+2))**2/(0.8**2))
     return E
 
 def EBondFeatureGrid(g):
