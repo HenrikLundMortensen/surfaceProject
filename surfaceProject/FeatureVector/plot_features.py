@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import calcenergy as ce
+import surfaceProject.energycalculations.calcenergy as ce
 
 """                                                                                                                                          
 Inputs 3D array f(image,atom,feature_vector)                                                                                                 
