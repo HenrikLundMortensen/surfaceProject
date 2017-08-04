@@ -38,6 +38,60 @@ def calcDensities(nA):
 
     return [Od,Agd]
 
+def calcBondLength(nA): # calc O-O, Ag-Ag and Ag-O bond length of surrounding atoms
+    ooLength = 0
+    agagLength = 0
+    agoLength = 0
+    for i in range(len(nA)-1):
+        if nA[i] != 0:
+            for j in range(i+1,len(nA)):
+                length = 0
+                if nA[j] != 0:
+                    if j - i > 3:
+                        length = 6-(j-i)
+                    else:
+                        length = j-i
+                    if length == 2:
+                        length = np.sqrt(3)
+                    if length == 3:
+                        length = 2
+                    if nA[i] != nA[j]:
+                        agoLength += np.exp(-length)
+                    elif nA[i] == 1:
+                        agagLength += np.exp(-length)
+                    else: ooLength  += np.exp(-length)
+    return [ooLength, agagLength,agoLength]
+
+def getBondFeatureVectorsSingleGrid(grid):
+    # Get size                                                                                                                                    
+
+    N = np.size(grid,0)
+
+
+    # Define list of feature vectors - initially empty                                                                                            
+    f = []
+
+    # For all atoms calculate and append a feature vector                                                                                         
+    for i in range(N):
+        for j in range(N):
+            s = grid[i][j]
+            if s!=0:
+                # Get neighbouring atoms                                                                                                          
+                neighbours = nA(grid,i,j,N)
+
+                # Calculate the densities                                                                                                         
+                [Od,Agd] = calcDensities(neighbours)
+
+                if s==1:
+                    a = 47
+
+                if s==2:
+                    a = 8
+                [ooLength,agagLength,agoLength] = calcBondLength(neighbours)
+
+                f.append([Od,Agd,a,ooLength,agagLength,agoLength])
+
+    return np.array(f)
 
 def getFeatureVectorsSingleGrid(grid):
 
@@ -82,7 +136,22 @@ def getFeatureVectors(G):
 
     return np.array(f)
 
+def getBondFeatureVectors(G):
 
+    # Define list of list of feature vectors - initially empty                                                                                    
+    f = []
+
+    # Get feature vectors for each grid                                                                                                           
+    for g in G:
+        f.append(getBondFeatureVectorsSingleGrid(g))
+
+
+    return np.array(f)
+
+if __name__ == '__main__':
+    testArray = [2,2,2,2,2,2]
+    testLength = calcBondLength(testArray)
+    print(testLength)
     
             
 

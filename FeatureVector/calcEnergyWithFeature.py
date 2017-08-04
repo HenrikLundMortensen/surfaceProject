@@ -43,4 +43,28 @@ def EFeatureGrid(g):
 
     return E
     
+def EBondFeature(f):
+    """
+    Calculates the energy contribution from a single feature vector. The rules are completely                                                     
+    made up.                                                                                                                                      
+    Input:                                                                                                                                        
+    f: Featurevector ( [O density, Ag density, Atomic number,O-O Lenght,Ag-Ag Length,Ag-O Length] )                                              
 
+    Output:                                                                                                                                       
+    E: Energy contribution of a single feature vector
+    """
+    
+    E = 0
+
+    if f[2] == 8:
+        E -= 4*np.exp(-(f[0] - 0.4)**2/(0.8**2))
+        E -= 4*np.exp(-(f[4] - 2*(3+np.sqrt(3)))**2/(0.8**2))
+        E -= 4*np.exp(-(f[3]-1)**2/(0.8**2))
+        E -= 4*np.exp(-(f[5] - 2*(1+np.sqrt(3)))**2/(0.8**2))
+    if f[2] == 47:
+        E -= 2*f[1]
+        E -= 2*np.exp(-(f[0] - 0.8)**2/(0.8**2))
+        E -= np.exp(-(f[3] - 1)**2/(0.8**2)) + np.exp(-(f[3] - 2)**2/(0.8**2))
+	E -= np.exp(-(f[4]-(3+2*np.sqrt(3)+2))**2/(0.8**2)) + np.exp(-(f[4]-1)**2/(0.8**2))
+	E -= np.exp(-(f[5] - 2*(1+np.sqrt(3)))**2/(0.8**2)) + np.exp(-(f[5] - 2*(1+2*np.sqrt(3)+2))**2/(0.8**2))
+    return E~
