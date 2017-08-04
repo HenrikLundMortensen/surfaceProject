@@ -1,7 +1,7 @@
-import FeatureVector.featureVector as fv
-import FeatureVector.plotFeature as pf
-import findStructure as fs
-import calcenergy as ce
+import surfaceProject.FeatureVector.featureVector as fv
+import surfaceProject.FeatureVector.plotFeature as pf
+import surfaceProject.energycalculations.findStructure as fs
+import surfaceProject.energycalculations.calcenergy as ce
 import numpy as np
 
 f = []
