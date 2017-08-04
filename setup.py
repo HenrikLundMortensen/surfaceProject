@@ -1,9 +1,9 @@
 from setuptools import setup
 
-setup(name='FeatureVector',
+setup(name='surfaceProject',
       version='1.0',
-      description='Tools for obbtaining and plotting feature vectors of a grid',
+      description='Package for discrete surface calculations',
       author='Malthe Kjær Bisbo ',
       author_email='mkb@phys.au.dk',
-      packages=['FeatureVector'],
+      packages=['surfaceProject'],
       zip_safe=False)
