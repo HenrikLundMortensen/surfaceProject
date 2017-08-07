@@ -36,7 +36,10 @@ def shuffle(surface,M): # Shuffle M atoms on the surface
 def findOptimum(size):  # Find optimal structure                                                                                  
     surface = randSurface(size)
     iter = 0
-    while iter < 500:
+    E2 = 0
+    E1 = 0
+    while iter < 5000:
+#        print(E2)
         iter+=1
         surface_temp = np.copy(surface)
         shuffle(surface,4)
@@ -46,20 +49,17 @@ def findOptimum(size):  # Find optimal structure
         if dE > 0:                               # We have a worse new surface
             if np.exp(-dE) < np.random.random(): # If much worse, higher chance to disregard
                 surface = np.copy(surface_temp)  # Disregard new surface
+       # if E2 < -83.4:
+        #    print(E2)
+        #    break
     return surface
 
 if __name__ == '__main__':
-#    import os,sys,inspect
-#    import calcenergy as ce
-#    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#    parentdir = os.path.dirname(currentdir)
-#    sys.path.insert(0,parentdir)
-
- #   import calcenergy as ce
-    import plotGrid as pg
-    
+    import surfaceProject.energycalculations.calcenergy as ce
+    import surfaceProject.energycalculations.findStructure as fs
     surface = findOptimum(5)
-    print(surface)
-#    print(pg.calculateEnergy(surface,5))
-    fig = pg.initializePlotGridFigure(5)
-    pg.plotGrid(surface,fig)
+    surface2 = fs.findOptimum(5)
+    print('The found surface is:',surface)
+    print('With energy:',ce.calculateEnergy(surface,5),' and ', EBondFeatureGrid(surface))
+    print('The correct surface is:',surface2)
+    print('With energy:',ce.calculateEnergy(surface2,5),' and ', EBondFeatureGrid(surface2)) 
