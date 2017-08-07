@@ -56,7 +56,7 @@ if __name__ == '__main__':
 #    sys.path.insert(0,parentdir)
 
  #   import calcenergy as ce
-    import plotGrid as pg
+    import surfaceProject.plotGrid.plotGrid as pg
     
     surface = findOptimum(5)
     print(surface)
