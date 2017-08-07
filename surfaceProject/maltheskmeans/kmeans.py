@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # plot data (assigned to clusters) + centroids
     color_array = ["r","b","y","g","c","m"]
     for i in range(N):
-        plt.plot(X[i,0],X[i,1],"o",color=color_array[cc_assigned[i]])
+        plt.plot(X[i,0],X[i,1],".",color=color_array[cc_assigned[i]])
     plt.plot(cc[:,0],cc[:,1],"x",color="k")
     plt.xlabel("Feature 1")
     plt.ylabel("Feature 2")
