@@ -6,4 +6,5 @@ setup(name='surfaceProject',
       author='Malthe Kjær Bisbo ',
       author_email='mkb@phys.au.dk',
       packages=['surfaceProject'],
+      packages=['surfaceProject','surfaceProject.energycalculations','surfaceProject.FeatureVector','surfaceProject.PlotGrid','surfaceProject.maltheskmeans','surfaceProject.henriksKmeans'],
       zip_safe=False)
