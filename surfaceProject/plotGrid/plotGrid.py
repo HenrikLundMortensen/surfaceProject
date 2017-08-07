@@ -122,20 +122,6 @@ def initializePlotGridFigure(N):
     
 
     
-######################################## TESTING ########################################
-
-N = 5
-g = np.random.randint(1,3,size=(N,N))
-
-print(g)
-fig  = initializePlotGridFigure(N)
-
-
-plotGrid(g,fig)
-
-plt.show()
-
-    
     
     
 
