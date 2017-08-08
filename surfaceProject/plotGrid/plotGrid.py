@@ -93,9 +93,9 @@ def initializePlotGridFigure(N):
 
     
     # Create two plot instances with no data
+    # Decrease markersize as N increases
     ax.plot([],[],'bo',markersize =5*15*1/N)
     ax.plot([],[],'ro',markersize =5*7*1/N)
-
 
     # Define the shearing matrix
     shearMat = np.array([[1, 0.5],[0,1]])

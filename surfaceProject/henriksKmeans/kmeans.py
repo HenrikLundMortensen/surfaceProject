@@ -62,10 +62,8 @@ def randInitFlist(flist,K):
 
 
 
-
 def henrikskmeans(flist,K):
     """
-
     Finds K clusters in list of feature vectors.
 
     Input:
@@ -74,21 +72,20 @@ def henrikskmeans(flist,K):
 
     Output: [clist,fcs]
     
-    clist: Contains an number representing which cluster the n'th feature vector belongs to
+    clist: Contains an number representing which cluster the n'th feature vector belongs to.
     If feature vector 1 and 3 belongs to first cluster and feature vector 2 belongs to the second, clist is [0,1,0]
 
 
     fcs: Cluster centers, [clustercenter_1,clustercenter_2,...]
-
     """
+    
     # Get some starting point for feature centers
     fcs = randInitFlist(flist,K)
     
     clist = [np.array(list(np.argmin(list(featureVecDist(f,fc) for fc in fcs)) for f in flist)),
-             'Some placeholder value']
+             'Some placeholder string']
 
     # While the clusters change between iterations
-
     while not np.array_equal(clist[0],clist[1]):
         
         # Find new centers
@@ -100,5 +97,5 @@ def henrikskmeans(flist,K):
         clist = [np.array(list(np.argmin(list(featureVecDist(f,fc) for fc in fcs)) for f in flist)),
                  clist[0]]
 
-        
     return [clist[0],fcs]
+
