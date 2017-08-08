@@ -19,7 +19,7 @@ def randomgrid(n):
 
 
 
-def getClusterNumberMatrix(F,K):
+def getClusterNumberMatrixTraining(F,K):
     """
     Takes a set of feature vectors, clusters them into K clusters and return a vector with how
     many of a cluster type that appears for each grid
@@ -29,7 +29,8 @@ def getClusterNumberMatrix(F,K):
     K: Number of clusters
 
     Output:
-    Numpy array with number of each cluster type for each grid
+    CNmatrik: Numpy array with number of each cluster type for each grid
+    kmeans_result: Instance of the class created by sklearns KMeans. Contains centroids and more. 
     """
     
 
@@ -43,9 +44,43 @@ def getClusterNumberMatrix(F,K):
     # Find K clusters using K-means
     # [fclist,clusterList] = kmeans2(F,K)
 
-    kmeans = KMeans(n_clusters = K).fit(F)
+    kmeans_result = KMeans(n_clusters = K).fit(F)
 
-    clusterList = kmeans.labels_
+    clusterList = kmeans_result.labels_
+
+    # Reshape into G x Ng matrix
+    clusterList = clusterList.reshape(G,Ng)
+
+
+    # For each grid, count how many of a cluster type it contains
+    CNmatrix = []
+    for c in clusterList:
+        CNmatrix.append(np.bincount(c))
+
+    return [np.array(CNmatrix),kmeans_result]
+
+
+def getClusterNumberMatrix(F,kmeans_result):
+    """
+    Takes a set of feature vectors, predicts which clusters they belong to and returns a vector with how
+    many of a cluster type that appears for each grid
+
+    Input:
+    F: Numpy array with feature vectors for several grids. On the form F[grid][atom][feature]
+    kmeans_result: Instance of the class created by sklearns KMeans. Contains centroids and more. 
+
+    Output:
+    CNmatrik: Numpy array with number of each cluster type for each grid
+    """
+
+    # Number of grids, feature vectors and features
+    (G,Ng,Nf)= F.shape
+
+    # Reshape F into a single large array containing feature vectors
+    F = F.reshape(G*Ng,Nf)
+
+    # Determine which clusters the features belong to
+    clusterList = kmeans_result.predict(F)
 
     # Reshape into G x Ng matrix
     clusterList = clusterList.reshape(G,Ng)
@@ -65,7 +100,13 @@ if __name__ == '__main__':
     # Get training set
     [G,T] = generateTraining(N,10,0.8)
     F = getBondFeatureVectors(G)
-    print(getClusterNumberMatrix(F,10))
+    Ftest = getBondFeatureVectors(T)
+
+    [CNmatrix,kmeans_result] = getClusterNumberMatrixTraining(F,10)
+    CNmatrixTest = getClusterNumberMatrix(Ftest,kmeans_result)
+
+
+
 
 
     
