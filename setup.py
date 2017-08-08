@@ -5,5 +5,5 @@ setup(name='surfaceProject',
       description='Package for discrete surface calculations',
       author='Malthe Kjær Bisbo ',
       author_email='mkb@phys.au.dk',
-      packages=['surfaceProject','surfaceProject.energycalculations','surfaceProject.FeatureVector','surfaceProject.PlotGrid','surfaceProject.maltheskmeans','surfaceProject.henriksKmeans'],
+      packages=['surfaceProject','surfaceProject.energycalculations','surfaceProject.FeatureVector','surfaceProject.plotGrid','surfaceProject.maltheskmeans','surfaceProject.henriksKmeans','surfaceProject.soerensKmeans'],
       zip_safe=False)
