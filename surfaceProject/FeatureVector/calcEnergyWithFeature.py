@@ -2,9 +2,8 @@ import numpy as np
 from surfaceProject.FeatureVector.featureVector import *
 
 def EFeature(f):
-    """
-    Calculates the energy contribution from a single feature vector. The rules are completely 
-    made up. 
+    """ Calculates the energy contribution from a sinfgle feature vector.
+    The rules are completely made up.
 
     Input:
     f: Featurevector ( [O density, Ag density, Atomic number] )
@@ -25,8 +24,8 @@ def EFeature(f):
 
 def EFeatureGrid(g):
     """
-    Calculate the energy given a grid. The energy is calculated with our own rules based
-    on the feature vectors. 
+    Calculate the energy given a grid. The energy is calculated with
+    our own rules based on the feature vectors.
 
     Input:
     g: numpy array grid
