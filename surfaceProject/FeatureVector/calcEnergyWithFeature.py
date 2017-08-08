@@ -1,6 +1,5 @@
 import numpy as np
 from surfaceProject.FeatureVector.featureVector import *
-#from plotGrid import *
 
 def EFeature(f):
     """
@@ -38,7 +37,6 @@ def EFeatureGrid(g):
     E = 0
     for f in getFeatureVectors([g])[0]:
         E += EFeature(f)
-
     return E
     
 def EBondFeature(f):
