@@ -77,8 +77,6 @@ def generateTraining(surfSize,setSize):
 if __name__ == '__main__':
     import surfaceProject.energycalculations.calcenergy as ce
     import surfaceProject.energycalculations.findStructure as fs
-    for i in range(10):
-        findOptimum(5)
     surface = findOptimum(5)
     surface2 = fs.findOptimum(5)
     print('The found surface is:',surface)
