@@ -85,7 +85,6 @@ def getClusterNumberMatrix(F,kmeans_result):
     # Reshape into G x Ng matrix
     clusterList = clusterList.reshape(G,Ng)
 
-
     # For each grid, count how many of a cluster type it contains
     CNmatrix = []
     for c in clusterList:
@@ -98,9 +97,9 @@ if __name__ == '__main__':
 
     N = 10
     # Get training set
-    [G,T] = generateTraining(N,10,0.8)
-    F = getBondFeatureVectors(G)
-    Ftest = getBondFeatureVectors(T)
+    [G,T] = generateTraining(N,10)
+    F = getBondFeatureVectors(G[0:8])
+    Ftest = getBondFeatureVectors(G[8:10])
 
     [CNmatrix,kmeans_result] = getClusterNumberMatrixTraining(F,10)
     CNmatrixTest = getClusterNumberMatrix(Ftest,kmeans_result)
