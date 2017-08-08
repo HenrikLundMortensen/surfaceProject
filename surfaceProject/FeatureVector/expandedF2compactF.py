@@ -1,7 +1,8 @@
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from surfaceProject.FeatureVector.findStructureWithFeature import generateTraining
+import surfaceProject.FeatureVector.findStructureWithFeature as fs
+import surfaceProject.FeatureVector.featureVector as fv
 
 # F[g,a,f], G: grid "g" in dataset, a: atom "a" in grid, f: features for atom
 # k clusters
@@ -51,6 +52,16 @@ if __name__ == '__main__':
     plt.title("k-means clustering 2D")
     #plt.show()
 
-    Xtrain,Xtest = generateTraining(5,10,0.8)
-    print(Xtrain)
-    print(Xtest)
+    Xtrain,Xtest = fs.generateTraining(5,100,0.8)
+    #print(Xtrain)
+    #print("\n",Xtest)
+
+    Ftrain = fv.getBondFeatureVectors(Xtrain)
+    [Ftrain_compact,kk,cc] = expandedF2compactF(Ftrain,k)
+    #print(Ftrain_compact)
+
+    Y = np.arange(9)
+    Y2 = np.copy(Y)
+    [Y, perm] = np.random.permutation(Y)
+    print(Y)
+    print(Y2[perm])
