@@ -1,4 +1,4 @@
-import calcenergy as ce
+import surfaceProject.energycalculations.calcenergy as ce
 import random
 import numpy as np
 
