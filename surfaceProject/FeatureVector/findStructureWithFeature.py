@@ -38,54 +38,47 @@ def findOptimum(size):  # Find optimal structure
     iter = 0
     E2 = 0
     E1 = 0
-    while iter < 5000:
-        #print(E2)
+    while iter < 50000:
         iter+=1
         surface_temp = np.copy(surface)
         shuffle(surface,4)
         E2 = EBondFeatureGrid(surface)
         E1 = EBondFeatureGrid(surface_temp)
         dE = E2 - E1
-        if dE > 0:                               # We have a worse new surface
-            if np.exp(-dE*10) < np.random.random(): # If much worse, higher chance to disregard
-                surface = np.copy(surface_temp)  # Disregard new surface
-        if E2 < -200:
+        if dE > 0:                                    # We have a worse new surface
+            if np.exp(-dE/3) < np.random.random():    # If much worse, higher chance to disregard
+                surface = np.copy(surface_temp)       # Disregard new surface
+        if E2 < -198:
             print(iter)
-            print(E2)
             break
     return surface
 
-def generateTraining(surfSize,setSize,trainingSize):
-    ''' Thus function generates a training set of of a surfSize x surfSize surface.
-    The total size of the set is given by setSize, and the relative size (0 to 1) of the training set by trainingSize.
-    The first element returned is the training set, and the next is the test set'''
+def generateTraining(surfSize,setSize):
     surface = randSurface(surfSize)
-    iter = 0
-    E2 = 0
-    E1 = 0
-    trainingSet = []
-    testSet     = []
-    while iter < setSize:
-        iter+=1
+    set = [0]*setSize
+    energy = np.zeros(setSize)
+    indices = np.arange(setSize)                    # Used for shuffeling the surfaces
+    indices = np.random.permutation(indices)
+    for i in range(setSize):
         surface_temp = np.copy(surface)
         shuffle(surface,4)
-        if iter <= int(setSize*trainingSize):
-            trainingSet.append(surface)
-        else:
-            testSet.append(surface)
         E2 = EBondFeatureGrid(surface)
         E1 = EBondFeatureGrid(surface_temp)
         dE = E2 - E1
+        set[indices[i]] =np.copy(surface)           # Shuffle surface
+        energy[indices[i]] = E2                     # Keep energy in same index number
         if dE > 0:                                  # We have a worse new surface
-            if np.exp(-dE*10) < np.random.random(): # If much worse, higher chance to disregard                                       
+            if np.exp(-dE/3) < np.random.random():  # If much worse, higher chance to disregard                                       
                 surface = np.copy(surface_temp)     # Disregard new surface
-        if E2 < -200:                               # We have found the correct surface
+        if E2 < -198:                               # We have found the correct surface
             surface = randSurface(surfSize)         # Then reset and continue
-    return np.array(trainingSet),np.array(testSet)
+    return np.array(set),energy
 
 if __name__ == '__main__':
     import surfaceProject.energycalculations.calcenergy as ce
     import surfaceProject.energycalculations.findStructure as fs
+    for i in range(10):
+        findOptimum(5)
     surface = findOptimum(5)
     surface2 = fs.findOptimum(5)
     print('The found surface is:',surface)
