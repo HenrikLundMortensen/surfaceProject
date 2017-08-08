@@ -1,5 +1,5 @@
 import numpy as np
-from featureVector import *
+from surfaceProject.FeatureVector.featureVector import *
 #from plotGrid import *
 
 def EFeature(f):
@@ -51,15 +51,15 @@ def EBondFeature(f):
 
     if f[2] == 8:
         E -= 4*np.exp(-(f[0] - 0.4)**2/(0.2**2))
-        E -= 4*np.exp(-(f[4] - 2*(3+np.sqrt(3)))**2/(0.2**2))
-        E -= 4*np.exp(-(f[3]-1)**2/(0.2**2))
-        E -= 4*np.exp(-(f[5] - 2*(1+np.sqrt(3)))**2/(0.2**2))
+        E -= 4*np.exp(-(f[4] - 1.36)**2/(0.2**2))
+        E -= 4*np.exp(-(f[3]-0)**2/(0.2**2))
+        E -= 4*np.exp(-(f[5] - 1.09)**2/(0.2**2))
     if f[2] == 47:
         E -= 2*f[1]
         E -= 2*np.exp(-(f[0] - 0.8)**2/(0.2**2))
-        E -= np.exp(-(f[3] - 1)**2/(0.2**2)) + np.exp(-(f[3] - 2)**2/(0.2**2))
-        E -= np.exp(-(f[4]-(3+2*np.sqrt(3)+2))**2/(0.2**2)) + np.exp(-(f[4]-1)**2/(0.2**2))
-        E -= np.exp(-(f[5] - 2*(1+np.sqrt(3)))**2/(0.2**2)) + np.exp(-(f[5] - 2*(1+2*np.sqrt(3)+2))**2/(0.2**2))
+        E -= np.exp(-(f[3] - 0.14)**2/(0.8**2)) + np.exp(-(f[3] - 0.37)**2/(0.8**2))
+        E -= np.exp(-(f[4]-0.37)**2/(0.8**2)) + np.exp(-(f[4]-1.60)**2/(0.8**2))
+        E -= np.exp(-(f[5] - 1.09)**2/(0.8**2)) + np.exp(-(f[5] -1.71)**2/(0.8**2))
     return E
 
 def EBondFeatureGrid(g):

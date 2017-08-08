@@ -149,7 +149,7 @@ def getBondFeatureVectors(G):
     return np.array(f)
 
 if __name__ == '__main__':
-    testArray = [2,2,2,2,2,2]
+    testArray = [2,1,1,0,1,1]
     testLength = calcBondLength(testArray)
     print(testLength)
     
