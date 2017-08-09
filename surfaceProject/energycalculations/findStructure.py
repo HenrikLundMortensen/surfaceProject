@@ -21,17 +21,17 @@ def shuffle(surface,M): # Shuffle M atoms on the surface
     for i in range(M):
         surface[L[i][0],L[i][1]] = shuffleArray[i,0]
 
+        
 def findOptimum(size):  # Find optimal structure
     correctEnergy = -48
     surface = ce.randSurface(size)
-    E = ce.calculateEnergy(surface,size)
     iter = 0
     while True:        
-        iter+=1
+        iter += 1
         surface_temp = np.copy(surface)
-        shuffle(surface,4)
-        E2 = ce.calculateEnergy(surface,size)
-        E1 = ce.calculateEnergy(surface_temp,size)
+        shuffle(surface, 4)
+        E2 = ce.calculateEnergy(surface, size)
+        E1 = ce.calculateEnergy(surface_temp, size)
         if E2 == correctEnergy:
             break
         dE = E2 - E1
