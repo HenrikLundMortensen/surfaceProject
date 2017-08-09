@@ -93,7 +93,7 @@ if __name__ == '__main__':
     Na = 18
     Nf = 6
     Nvalidations = 10
-    Nlearn = 10
+    Nlearn = 50
     Nk = 10  # Number of repetitions with different number of clusters
     k_array = np.arange(1, Nk+1)*10
     error_array = np.zeros((Nlearn, Nk))
@@ -102,11 +102,11 @@ if __name__ == '__main__':
     Ndata_array = np.logspace(1, 3, Nlearn).astype(int)
     for m in range(Nk):
         k = k_array[m]
+        k = 60
         for i in range(Nlearn):
             Ndata = Ndata_array[i]
             Ntest = int(Ndata/Nvalidations)
-        
-        
+            Xdata = X[0:Ndata]
             # Do Nvalidations-fold cross-validation
             for j in range(Nvalidations):
                 print('%g/10 \t %g/10 \t %g/10' %(m, j, i))
@@ -116,7 +116,7 @@ if __name__ == '__main__':
                 i_train = np.r_[i_train1, i_train2]
                 
                 # Split into test and training
-                Xtrain, Xtest = X[i_train], X[i_test]
+                Xtrain, Xtest = Xdata[i_train], Xdata[i_test]
                 Etrain, Etest = E[i_train], E[i_test]
 
                 # Apply clustering
