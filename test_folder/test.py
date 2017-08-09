@@ -1,9 +1,6 @@
-import surfaceProject.energycalculations.calcenergy as ce
-import surfaceProject.featureVector.featureVectors as fv
-surf = ce.randSurface(5)
-print(surf)
-#f = fv.getBondFeatureVectorsSingleGrid(surf)
-#print(f)
+import surfaceProject.energycalculations.findStructure as fs
+import surfaceProject.FeatureVector.featureVector as fv
 
+surf = fs.findOptimum(5)
 f = fv.getBondFeatureVectorsSingleGrid(surf)
 print(f)

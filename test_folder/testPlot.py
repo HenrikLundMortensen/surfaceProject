@@ -1,10 +1,5 @@
-import surfaceProject.energycalculations.findStructure as fs
-import surfaceProject.plotGrid.plotGrid as pg
 import matplotlib.pyplot as plt
+import surfaceProject.FeatureVector.findStructureWithFeature as fswf
 
-
-surface = fs.findOptimum(5)
-fig = pg.initializePlotGridFigure(5)
-pg.plotGrid(surface, fig)
+fswf.findOptimumAnimation(5)
 plt.show()
-
