@@ -132,26 +132,25 @@ def getFeatureVectors(G):
     # Get feature vectors for each grid
     for g in G:
         f.append(getFeatureVectorsSingleGrid(g))
-
-
     return np.array(f)
+
 
 def getBondFeatureVectors(G):
 
-    # Define list of list of feature vectors - initially empty                                                                                    
+    # Define list of list of feature vectors - initially empty
     f = []
 
-    # Get feature vectors for each grid                                                                                                           
+    # Get feature vectors for each grid
     for g in G:
         f.append(getBondFeatureVectorsSingleGrid(g))
-
-
     return np.array(f)
 
+
 if __name__ == '__main__':
-    testArray = [2,1,1,0,1,1]
+    testArray = [0, 2, 1, 0, 2, 1]
     testLength = calcBondLength(testArray)
-    print(testLength)
+    print('Test array is:', testArray)
+    print('Bond length is [O-O,Ag-Ag,Ag-O]:', testLength)
     
 
 
