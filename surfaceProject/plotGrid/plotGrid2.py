@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import PatchCollection
 from randomgrid import *
+import surfaceProject.FeatureVector.findStructureWithFeature as fs
+import surfaceProject.FeatureVector.featureVector as fv
+import surfaceProject.FeatureVector.learningCurve as lc
 import numpy as np
 
 
@@ -121,8 +124,8 @@ class plotGridFig:
                 N = g.shape[0]
                 
                 ax.set_facecolor((0.9,0.8,1))
-                ax.set_xlim([-0.1+0.25,1.1+0.25])
-                ax.set_ylim([-0.1,1.1])
+                ax.set_xlim([-0.2+0.25,1.2+0.25])
+                ax.set_ylim([-0.2,1.2])
 
                 self.plotGridInAxMatEntry(g,axMatEntry)
 
@@ -131,7 +134,7 @@ class plotGridFig:
     def plotGridInAxMatEntry(self,g,axMatEntry):
         # Get system size
         N = g.shape[0]
-
+        g = np.rot90(g,1)
         # Define the shearing matrix
         shearMat = np.array([[1, 0.5],[0,1]])
 
@@ -253,7 +256,7 @@ if __name__ == '__main__':
 
     def getNeighbourGrid(g,i,j):
         N = g.shape[0]
-        print(g)
+
         neighbourGrid = np.zeros(shape=(3,3))
         neighbourGrid[1][1] = g[i][j]
         neighbourGrid[0][1] = g[np.mod(i-1,N)][j]
@@ -271,20 +274,20 @@ if __name__ == '__main__':
 
     
     
-    N = 5
-    figClass = plotGridFig()
-    figClass.initializeClusterPlot(N,8,10)
+    # N = 5
+    # figClass = plotGridFig()
+    # figClass.initializeClusterPlot(N,8,10)
 
 
-    G = np.empty(shape=(8,10),dtype=object)
-    for i in range(8):
-        for j in range(10):
-            G[i][j] = randomgrid(N)
+    # G = np.empty(shape=(8,10),dtype=object)
+    # for i in range(8):
+    #     for j in range(10):
+    #         G[i][j] = randomgrid(N)
 
-    figClass.plotClusters(G)
+    # figClass.plotClusters(G)
 
-    figClass.fig.savefig('mytest.png',dpi=figClass.dpi)
-    print((getNeighbourGrid(G[0][0],2,2)))
+    # figClass.fig.savefig('mytest.png',dpi=figClass.dpi)
+    # print((getNeighbourGrid(G[0][0],2,2)))
     
     # for i in range(10):
     #     g = randomgrid(N)
@@ -297,16 +300,57 @@ if __name__ == '__main__':
 
     # print(len(getIndiciesBelongingToCluster(ind,clist,K)[4]))
 
+    N = 5
+    NTrain = 100
+    NTest = 20
+    K = 60
+    X, E = fs.generateTraining(N, NTrain + NTest)
 
+    # Split into test and training
+    Xtrain, Xtest = X[0:NTrain], X[NTrain:NTrain+NTest]
+    Etrain, Etest = E[0:NTrain], E[NTrain:NTrain+NTest]
 
+    # Apply clustering
+    Ftrain = fv.getBondFeatureVectors(Xtrain)
+    [Ftrain_compact, kmeans] = lc.expandedF2compactF(Ftrain, K)
+
+    (Ng, Na, Nf) = np.shape(Ftrain)
     
-
-    # print(getIndiciesWithAtoms(G[0][0]))
-    
-
-
+    # Reshape data for clustering
+    F = np.reshape(Ftrain, (Ng*Na, Nf))
+    clistMat = np.reshape(kmeans.predict(F),(Ng, Na))
 
 
+    neighbourGridsBeloningToCluster = list(range(K))
+    for i in range(K):
+        neighbourGridsBeloningToCluster[i] = []
+        
+    for i in range(NTrain):
+        indicies = getIndiciesWithAtoms(Xtrain[i])
+        clist = clistMat[i]
+        indiciesBelongingToCluster = getIndiciesBelongingToCluster(indicies,clist,K)
+
+        for k in range(K):
+            if len(indiciesBelongingToCluster[k]) != 0:
+                for j in indiciesBelongingToCluster[k]:
+                    nG = getNeighbourGrid(Xtrain[i],j[0],j[1])
+                    neighbourGridsBeloningToCluster[k].append(nG)
+
+
+    NumOfVisuals = 10
+    NumOfClusters = 10
+                    
+    G = np.empty(shape=(NumOfClusters,NumOfVisuals),dtype=object)
+    for i in range(NumOfClusters):
+        for j in range(NumOfVisuals):
+            G[i][j] = neighbourGridsBeloningToCluster[i][j]
+
+
+    print(G[0][0].shape)
+    figClass = plotGridFig()
+    figClass.initializeClusterPlot(N,NumOfClusters,NumOfVisuals)
+    figClass.plotClusters(G)
+    figClass.fig.savefig('mytest.png',dpi=figClass.dpi)
                 
             
         
