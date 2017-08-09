@@ -1,8 +1,8 @@
 from surfaceProject.FeatureVector.calcEnergyWithFeature import *
 import random
 import numpy as np
-
-
+import surfaceProject.plotGrid.plotGrid as pg
+import matplotlib.pyplot as plt
 def randSurface(N):
     '''' Creates a random surface of size N. The standard rules for number of
     oxygen, silver and empty sites are obeyed'''
@@ -40,14 +40,12 @@ def shuffle(surface, M):
 
         
 def findOptimum(size):
-    '''' Returns the optimal structure given a size.
+    ''' Returns the optimal structure given a size.
     This is configured using a specific energy expression (EBondFeatureGrid)
     and thus if this expression is modified the algorithm will fail. It is
     also optimzized for 5 x 5, and will probably not work for other sizes'''
     surface = randSurface(size)
     iter = 0
-    E2 = 0
-    E1 = 0
     while iter < 50000:
         iter+=1
         surface_temp = np.copy(surface)
@@ -65,7 +63,7 @@ def findOptimum(size):
 
 
 def generateTraining(surfSize, setSize):
-    ''''Produces setSize number of surface grids. The grids are found
+    '''Produces setSize number of surface grids. The grids are found
     based on a metropolis monte carlo method searching for the
     optimal structure. The grids together with the energy for each
     grid (based on feature vectors) are returned in random order'''
@@ -88,6 +86,34 @@ def generateTraining(surfSize, setSize):
         if E2 < -198:                               # We have found the correct surface
             surface = randSurface(surfSize)         # Then reset and continue
     return np.array(set),energy
+
+
+def findOptimumAnimation(size):
+    ''' Returns the optimal structure given a size.
+    This is configured using a specific energy expression (EBondFeatureGrid)
+    and thus if this expression is modified the algorithm will fail. It is
+    also optimzized for 5 x 5, and will probably not work for other sizes'''
+    surface = randSurface(size)
+    iter = 0
+    fig = pg.initializePlotGridFigure(5)
+    while iter < 50000:
+        iter += 1
+        surface_temp = np.copy(surface)
+        shuffle(surface, 4)
+        E2 = EBondFeatureGrid(surface)
+        E1 = EBondFeatureGrid(surface_temp)
+        dE = E2 - E1
+        if dE > 0:                                  # We have a worse new surfac
+            if np.exp(-dE/2.5) < np.random.random():  # If much worse, disregard
+                surface = np.copy(surface_temp)     # Disregard new surface
+        if not np.array_equal(surface, surface_temp):
+            pg.plotGrid(surface, fig)
+            plt.draw()
+            plt.pause(0.01)
+        if E2 < -198:
+            print(iter)
+            break
+        
 
 if __name__ == '__main__':
     import surfaceProject.energycalculations.calcenergy as ce
