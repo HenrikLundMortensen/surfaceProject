@@ -104,7 +104,7 @@ def findOptimumAnimation(size):
         E1 = EBondFeatureGrid(surface_temp)
         dE = E2 - E1
         if dE > 0:                                  # We have a worse new surfac
-            if np.exp(-dE/2.5) < np.random.random():  # If much worse, disregard
+            if np.exp(-dE/3) < np.random.random():  # If much worse, disregard
                 surface = np.copy(surface_temp)     # Disregard new surface
         if not np.array_equal(surface, surface_temp):
             pg.plotGrid(surface, fig)
