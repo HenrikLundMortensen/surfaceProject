@@ -89,39 +89,72 @@ if __name__ == '__main__':
     plt.title("k-means clustering 2D")
     plt.show()
     """
-    
-    k = 60
+
     Na = 18
     Nf = 6
-    Ntrain_max = 2000
-    Ntest = 100
-    error_array = np.zeros(10)
-    for j in range(10):
-        X, E = fs.generateTraining(5, Ntrain_max+Ntest)
-        Ndata_array = np.logspace(1, 3, 10)
-        for i in range(10):
-            print('%g/10 \t %g/10' %(j,i))
-            Ntrain = Ndata_array[i].astype(int)
-    
-            # Split into test and training
-            Xtrain, Xtest = X[0:Ntrain], X[Ntrain:Ntrain+Ntest]
-            Etrain, Etest = E[0:Ntrain], E[Ntrain:Ntrain+Ntest]
+    Nvalidations = 10
+    Nlearn = 10
+    Nk = 10  # Number of repetitions with different number of clusters
+    k_array = np.arange(1, Nk+1)*10
+    error_array = np.zeros((Nlearn, Nk))
+    Ndata_max = 1000
+    X, E = fs.generateTraining(5, Ndata_max)
+    Ndata_array = np.logspace(1, 3, Nlearn).astype(int)
+    for m in range(Nk):
+        k = k_array[m]
+        for i in range(Nlearn):
+            Ndata = Ndata_array[i]
+            Ntest = int(Ndata/Nvalidations)
+        
+        
+            # Do Nvalidations-fold cross-validation
+            for j in range(Nvalidations):
+                print('%g/10 \t %g/10 \t %g/10' %(m, j, i))
 
-            # Apply clustering
-            Ftrain = fv.getBondFeatureVectors(Xtrain)
-            [Ftrain_compact, kmeans] = expandedF2compactF(Ftrain, k)
+                # Calculate indices for j'th split of data for cross-validation
+                [i_train1, i_test, i_train2] = np.split(np.arange(Ndata), [Ntest*j, Ntest*(j+1)])
+                i_train = np.r_[i_train1, i_train2]
+                
+                # Split into test and training
+                Xtrain, Xtest = X[i_train], X[i_test]
+                Etrain, Etest = E[i_train], E[i_test]
 
-            # Calculate cluster energies
-            Ecluster = getClusterEnergies(Ftrain_compact, Etrain)
-    
-            clusterNumMat_test = clusterNumMatFromKmeans(Xtest, kmeans)
-    
-            Etest_predict = np.dot(clusterNumMat_test, Ecluster)
-            error = np.dot(Etest-Etest_predict, Etest-Etest_predict)/Ntest
-            error_array[i] += error
+                # Apply clustering
+                Ftrain = fv.getBondFeatureVectors(Xtrain)
+                [Ftrain_compact, kmeans] = expandedF2compactF(Ftrain, k)
+                
+                # Calculate cluster energies
+                Ecluster = getClusterEnergies(Ftrain_compact, Etrain)
+                
+                # Calculate the final feature matrix for the test set
+                clusterNumMat_test = clusterNumMatFromKmeans(Xtest, kmeans)
+
+                # Calculate the average squared error between
+                # the predicted and actual test set energies.
+                Etest_predict = np.dot(clusterNumMat_test, Ecluster)
+                error = np.dot(Etest-Etest_predict, Etest-Etest_predict)/Ntest
+                error_array[i][m] += error
     error_array /= 10
-    plt.loglog(Ndata_array, error_array)
+    for m in range(Nk):
+        plt.loglog(Ndata_array, error_array[:, m], label = "k = %i" %(k_array[m]))
     plt.title("Learning Curve")
     plt.xlabel("# training data")
     plt.ylabel("error")
+    plt.legend(loc=1)
     plt.show()
+    
+    '''
+    Nval = 10
+    Ndata = 100
+    Ntrain = int(Ndata/Nval)
+    X = np.arange(Ndata)
+    for i in range(Nval):
+        [Xtrain1, Xtest, Xtrain2] = np.split(X, [Ntrain*i, Ntrain*(i+1)])
+        Xtrain = np.r_[Xtrain1, Xtrain2]
+        
+        print("Xtrain =", X[Xtrain])
+        print("Xtest =", X[Xtest])
+    #indices = list(range(3, 5)) + list(range(7, 9))
+    #X1 = np.take(X, indices)
+    #print(X1)
+    '''
