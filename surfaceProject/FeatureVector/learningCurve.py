@@ -90,17 +90,17 @@ if __name__ == '__main__':
     plt.show()
     """
     
-    k = 10
+    k = 60
     Na = 18
     Nf = 6
     Ntrain_max = 2000
     Ntest = 100
     error_array = np.zeros(10)
-    for i in range(10):
-        print(i)
+    for j in range(10):
         X, E = fs.generateTraining(5, Ntrain_max+Ntest)
-        Ndata_array = np.linspace(0.1, 1.0, 10)*Ntrain_max
+        Ndata_array = np.logspace(1, 3, 10)
         for i in range(10):
+            print('%g/10 \t %g/10' %(j,i))
             Ntrain = Ndata_array[i].astype(int)
     
             # Split into test and training
@@ -117,10 +117,10 @@ if __name__ == '__main__':
             clusterNumMat_test = clusterNumMatFromKmeans(Xtest, kmeans)
     
             Etest_predict = np.dot(clusterNumMat_test, Ecluster)
-            error = np.dot(Etest-Etest_predict, Etest-Etest_predict)/Ntrain
+            error = np.dot(Etest-Etest_predict, Etest-Etest_predict)/Ntest
             error_array[i] += error
     error_array /= 10
-    plt.plot(Ndata_array, error_array)
+    plt.loglog(Ndata_array, error_array)
     plt.title("Learning Curve")
     plt.xlabel("# training data")
     plt.ylabel("error")
