@@ -1,13 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import PatchCollection
-from randomgrid import *
+
 import surfaceProject.FeatureVector.findStructureWithFeature as fs
 import surfaceProject.FeatureVector.featureVector as fv
 import surfaceProject.FeatureVector.learningCurve as lc
 import numpy as np
-
-
 
 
 
@@ -76,16 +74,17 @@ class plotGridFig:
         self.NumOfVisuals = NumOfVisuals
 
         
-        dpi = 50
-        featurePlotSizeInPixels = 100
-        sepInPixels = 25
+        dpi = 20
+        featurePlotSizeInPixels = 50
+        sepInPixels = int(25/2)
 
         self.dpi = dpi
         self.featurePlotSizeInPixels = featurePlotSizeInPixels
         self.sepInPixels = sepInPixels
 
-        widthInInches = ((featurePlotSizeInPixels + sepInPixels)*NumOfVisuals + sepInPixels)/dpi
-        heightInInches = ((featurePlotSizeInPixels + sepInPixels)*NumOfClusters + sepInPixels)/dpi
+        widthInInches = ((featurePlotSizeInPixels + sepInPixels)*(NumOfVisuals+1) + sepInPixels)/dpi
+        heightInInches = ((featurePlotSizeInPixels + sepInPixels)*(NumOfClusters+1) + sepInPixels)/dpi
+        print('width = %g , height = %g' %(widthInInches,heightInInches))
         self.fig.set_size_inches(widthInInches,heightInInches)
 
         axMat = np.empty(shape = (NumOfClusters,NumOfVisuals,2),dtype=object)
@@ -94,8 +93,8 @@ class plotGridFig:
             for j in range(NumOfVisuals):
                 widthFactor = 1/(dpi*widthInInches)
                 heightFactor = 1/(dpi*heightInInches)
-                axesPosition = [ ((featurePlotSizeInPixels + sepInPixels)*j + sepInPixels )*widthFactor,
-                                 ((featurePlotSizeInPixels + sepInPixels)*i + sepInPixels )*heightFactor,
+                axesPosition = [ ((featurePlotSizeInPixels + sepInPixels)*(j+1) + sepInPixels )*widthFactor,
+                                 ((featurePlotSizeInPixels + sepInPixels)*(i+1) + sepInPixels )*heightFactor,
                                  featurePlotSizeInPixels*widthFactor,
                                  featurePlotSizeInPixels*heightFactor] 
 
@@ -114,8 +113,6 @@ class plotGridFig:
         self.axMat = axMat
 
     def plotClusters(self,G):
-
-
         for i in range(self.NumOfClusters):
             for j in range(self.NumOfVisuals):
                 axMatEntry = self.axMat[i][j]
@@ -267,42 +264,62 @@ if __name__ == '__main__':
         neighbourGrid[0][0] = g[np.mod(i-1,N)][np.mod(j-1,N)]
 
         return neighbourGrid
+
+
+    def countSubstring(string,sub):
+        """
+        """
+        string = string + string
+
+        count = 0
+        i = 0
+        while True:
+            i = string.find(sub,i) + 1
+            if i > 0: 
+                count += 1
+            else:
+                return count
+
+    def neighbourString(nG):
+        """
+        """
+        N = 3
+        i = 1
+        j = 1
+        int_list = [ nG[np.mod(i,N)][np.mod(j-1,N)] ,
+                     nG[np.mod(i-1,N)][np.mod(j-1,N)] ,
+                     nG[np.mod(i-1,N)][np.mod(j,N)] ,
+                     nG[np.mod(i,N)][np.mod(j+1,N)],
+                     nG[np.mod(i+1,N)][np.mod(j+1,N)],
+                     nG[np.mod(i+1,N)][np.mod(j,N)]]
+        return ''.join(str(i) for i in int_list)
+
+    def UniqueNeighbourGridsBeloningToCluster(neighbourGridsBeloningToCluster):
+        """
+        """
+        uniqueNGlistForEachCluster = []
+        for nGBTC in neighbourGridsBeloningToCluster:
+            uniqueNGlist = []
+            for nG in nGBTC:
+                nGString = neighbourString(nG)
+                count = 0
+                for uniqueNG in uniqueNGlist:
+                    count += countSubstring(neighbourString(uniqueNG),nGString)
+
+                if count == 0:
+                    uniqueNGlist.append(nG)
+            
+            uniqueNGlistForEachCluster.append(uniqueNGlist)
+        return uniqueNGlistForEachCluster
+                
+            
+
+
         
-        
-
-
-
-    
-    
-    # N = 5
-    # figClass = plotGridFig()
-    # figClass.initializeClusterPlot(N,8,10)
-
-
-    # G = np.empty(shape=(8,10),dtype=object)
-    # for i in range(8):
-    #     for j in range(10):
-    #         G[i][j] = randomgrid(N)
-
-    # figClass.plotClusters(G)
-
-    # figClass.fig.savefig('mytest.png',dpi=figClass.dpi)
-    # print((getNeighbourGrid(G[0][0],2,2)))
-    
-    # for i in range(10):
-    #     g = randomgrid(N)
-    #     figClass.plotGrid(g)
-    #     plt.pause(1)
-
-    # ind = getIndiciesWithAtoms(G[0][0])
-    # clist = np.array([0,0,2,0,1,0,0,0,2,0,0,0,0,0,0,0,0,0])
-    # K = 10
-
-    # print(len(getIndiciesBelongingToCluster(ind,clist,K)[4]))
 
     N = 5
-    NTrain = 100
-    NTest = 20
+    NTrain = 1000
+    NTest = 200
     K = 60
     X, E = fs.generateTraining(N, NTrain + NTest)
 
@@ -318,9 +335,14 @@ if __name__ == '__main__':
     
     # Reshape data for clustering
     F = np.reshape(Ftrain, (Ng*Na, Nf))
-    clistMat = np.reshape(kmeans.predict(F),(Ng, Na))
+    clistMat = kmeans.predict(F)
+    clistMat = np.reshape(clistMat, (Ng, Na))
 
+    EClusters = np.dot(np.linalg.pinv(Ftrain_compact),Etrain)
 
+    sortList = np.argsort(EClusters)[::-1]
+    EClustersSorted = EClusters[sortList]
+    
     neighbourGridsBeloningToCluster = list(range(K))
     for i in range(K):
         neighbourGridsBeloningToCluster[i] = []
@@ -337,20 +359,45 @@ if __name__ == '__main__':
                     neighbourGridsBeloningToCluster[k].append(nG)
 
 
-    NumOfVisuals = 10
-    NumOfClusters = 10
-                    
+
+    uniqueNeighbourList = UniqueNeighbourGridsBeloningToCluster(neighbourGridsBeloningToCluster)
+    listOfLengths = list(len(a) for a in uniqueNeighbourList)
+
+    NumOfVisuals = max(listOfLengths)
+    NumOfClusters = K
+    print(NumOfVisuals)
+    print(NumOfClusters)
+    
     G = np.empty(shape=(NumOfClusters,NumOfVisuals),dtype=object)
     for i in range(NumOfClusters):
         for j in range(NumOfVisuals):
-            G[i][j] = neighbourGridsBeloningToCluster[i][j]
+            if j < listOfLengths[sortList[i]]:
+                G[i][j] = uniqueNeighbourList[sortList[i]][j]
+            else:
+                G[i][j] = np.zeros(shape=(3,3))
 
 
-    print(G[0][0].shape)
+
+
+
+
+
+                
     figClass = plotGridFig()
+    print('I made an instance.')
+    
     figClass.initializeClusterPlot(N,NumOfClusters,NumOfVisuals)
+    print('Initialized the figure.')
+
     figClass.plotClusters(G)
-    figClass.fig.savefig('mytest.png',dpi=figClass.dpi)
+    print('Plotted the local features.')
+
+    for i in range(K):
+        Estr = "%3.3g" %(EClusters[sortList[i]])
+        figClass.axMat[i][0][0].text(-0.2,0.5,Estr,ha='right',va='center',size=50)
+
+    
+    figClass.fig.savefig('mytest.png',dpi=int(figClass.dpi*3))
                 
             
         
