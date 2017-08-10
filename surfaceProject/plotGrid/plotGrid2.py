@@ -1,32 +1,40 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import PatchCollection
-
+from randomgrid import *
 import surfaceProject.FeatureVector.findStructureWithFeature as fs
 import surfaceProject.FeatureVector.featureVector as fv
 import surfaceProject.FeatureVector.learningCurve as lc
+import surfaceProject.FeatureVector.calcEnergyWithFeature as cf
+
 import numpy as np
 
 
 
 class plotGridFig:
+    """
+    Class for plotting grids in various configurations. Generally, a matplotlib figure instance is created. 
+    The grid is then plotted by updating existing obejcts in the figure. 
 
+    To plot a single grid with the unit square highlighted, initialize figure with the initializeGridPlot method. 
+    To plot a grid, call the plotGrid method. 
+
+    To plot a series of grid next to each other, initialize the figure with the initializeClusterPlot method. 
+    To plot a series of grids, call the plotCluster method. 
+    """
     
     def __init__(self):
+
+        # Create the matplotlib figure instance
         self.fig = plt.figure()
         self.masterAx = self.fig.gca()
-        self.fig.set_size_inches(10,10)
-        
-
-    def show(self):
-        self.fig.show()
-    
     
 
     def initializeGridPlot(self,N):
         """
-        Input:
-        N: System size
+        Initializes the figure to plot a single grid. 
+        Input: 
+        N: System size (the grid to be plotted must be N x N)
         """
 
         ax = self.masterAx
@@ -57,23 +65,28 @@ class plotGridFig:
         for i in range(4):
             xy[i] = np.dot(shearMat,xy[i])
 
-        # xy = np.array([[1,5],[2,6],[3,7],[4,8]])
+        # Create the polygon patch, which highlights the unit cell
         p = patches.Polygon(xy,fc=(0,0,1,0.2),lw=2,ec =(0,0,0,1))
 
         ax.add_patch(p)
 
-    def initializeClusterPlot(self,N,NumOfClusters,NumOfVisuals):
+    def initializeClusterPlot(self,N,NumOfRows,NumOfColumns):
         """
+        Initialize figure to plot NumOfRows x NumOfColumns grid of size N x N.  
+
         Input:
         N: System size
+        NumOfRows: Number of rows of grids
+        NumOfColumns: Number of columns of grids
         """
 
+        
         self.N = N
         self.masterAx.set_axis_off()
-        self.NumOfClusters = NumOfClusters
-        self.NumOfVisuals = NumOfVisuals
+        self.NumOfRows = NumOfRows
+        self.NumOfColumns = NumOfColumns
 
-        
+        # Specify figure size (Not smart yet!)
         dpi = 20
         featurePlotSizeInPixels = 50
         sepInPixels = int(25/2)
@@ -82,15 +95,15 @@ class plotGridFig:
         self.featurePlotSizeInPixels = featurePlotSizeInPixels
         self.sepInPixels = sepInPixels
 
-        widthInInches = ((featurePlotSizeInPixels + sepInPixels)*(NumOfVisuals+1) + sepInPixels)/dpi
-        heightInInches = ((featurePlotSizeInPixels + sepInPixels)*(NumOfClusters+1) + sepInPixels)/dpi
-        print('width = %g , height = %g' %(widthInInches,heightInInches))
+        # Calculate and set width and heigh of image in inches
+        widthInInches = ((featurePlotSizeInPixels + sepInPixels)*(NumOfColumns+1) + sepInPixels)/dpi
+        heightInInches = ((featurePlotSizeInPixels + sepInPixels)*(NumOfRows+1) + sepInPixels)/dpi
         self.fig.set_size_inches(widthInInches,heightInInches)
 
-        axMat = np.empty(shape = (NumOfClusters,NumOfVisuals,2),dtype=object)
-        
-        for i in range(NumOfClusters):
-            for j in range(NumOfVisuals):
+        # Create all the axes in where the grids are to be plotted. Save in huge axes matrix
+        axMat = np.empty(shape = (NumOfRows,NumOfColumns,2),dtype=object)
+        for i in range(NumOfRows):
+            for j in range(NumOfColumns):
                 widthFactor = 1/(dpi*widthInInches)
                 heightFactor = 1/(dpi*heightInInches)
                 axesPosition = [ ((featurePlotSizeInPixels + sepInPixels)*(j+1) + sepInPixels )*widthFactor,
@@ -98,55 +111,92 @@ class plotGridFig:
                                  featurePlotSizeInPixels*widthFactor,
                                  featurePlotSizeInPixels*heightFactor] 
 
+                # The first entry in the [i][j]'th position is the axes itself
                 axMat[i][j][0] = plt.axes(axesPosition)
+
+                # No ticks
                 axMat[i][j][0].tick_params(bottom='off',left='off')
                 axMat[i][j][0].tick_params(labelbottom='off',labelleft='off')
 
+                # Create all the circles. The color and radius are updated when the grids are plotted. 
                 p = []
                 for m in range(N**2):
                     p.append(patches.Circle(xy = (0,0), radius = 0))
                     axMat[i][j][0].add_artist(p[m])
-                    
+
+                # Save the list of patches in the second entry of the [i][j]'th position in axMat
                 axMat[i][j][1] = p
+
+                # Add all axes to the figure
                 self.fig.add_axes(axMat[i][j][0])
 
         self.axMat = axMat
 
     def plotClusters(self,G):
-        for i in range(self.NumOfClusters):
-            for j in range(self.NumOfVisuals):
+        """
+        Updates all the circles created in the InitializeClusterPlot method, according to the grids provided. 
+
+        Input:
+        G: Matrix with grids in the entries. The entry G[i][j] is the grid to be plotted in the [i]'th row and 
+        [j]'th column. 
+        """
+
+        # Run through all entires in G
+        for i in range(self.NumOfRows):
+            for j in range(self.NumOfColumns):
                 axMatEntry = self.axMat[i][j]
                 ax = axMatEntry[0]
                 g = G[i][j]
                 N = g.shape[0]
-                
+
+                # Set facecolor to be purple'ish
                 ax.set_facecolor((0.9,0.8,1))
+
+                # Set x and y limits for the plot.
+                # Everything is plottede between 0 and 1. Choose limits to be -0.2 and 1.2.
+                # The +0.25 is due to the shearing if the grids.
                 ax.set_xlim([-0.2+0.25,1.2+0.25])
                 ax.set_ylim([-0.2,1.2])
 
+                # Update the [i][j]'th axes
                 self.plotGridInAxMatEntry(g,axMatEntry)
 
                 
 
     def plotGridInAxMatEntry(self,g,axMatEntry):
+        """
+        Updates the circles created in the InitializeClusterPlot method according to the grid. 
+
+        Input:
+        g: Grid to be plotted
+        axMatEntry: axMatEntry[0] is the axes where the grid is to be plotted. axMatEntry[1] is a list of
+        circles (patches) to be updated accoring to the grid.
+
+        """
+        
         # Get system size
         N = g.shape[0]
         g = np.rot90(g,1)
         # Define the shearing matrix
         shearMat = np.array([[1, 0.5],[0,1]])
 
+        # Specify the radius for each atom type
         AgRadius = 1/N*0.95/2
         ORadius = AgRadius/2
 
+        # List of coordinates between 0 and 1
         xcoords = np.linspace(0,1,N)
         ycoords = np.linspace(0,1,N)
+        
         m = 0
         for i in range(N):
             for j in range(N):
                 
                 coord = (xcoords[i],ycoords[j])
                 coord = np.dot(shearMat,coord)
-                
+
+
+                # Update center position and radius according to atom type
                 if g[i][j] == 0:
                     axMatEntry[1][m].center = coord
                     axMatEntry[1][m].radius = 0
@@ -321,7 +371,17 @@ if __name__ == '__main__':
     NTrain = 1000
     NTest = 200
     K = 60
+
+    # Generate training set with Monte Carlo
     X, E = fs.generateTraining(N, NTrain + NTest)
+
+    # Generate random training sest
+    XRand = np.array(list(randomgrid(N) for i in range(NTrain + NTest)))
+    ERand = np.array(list(cf.EBondFeatureGrid(g) for g in XRand ))
+    X = XRand
+    E = ERand
+
+    
 
     # Split into test and training
     Xtrain, Xtest = X[0:NTrain], X[NTrain:NTrain+NTest]
@@ -358,19 +418,17 @@ if __name__ == '__main__':
                     nG = getNeighbourGrid(Xtrain[i],j[0],j[1])
                     neighbourGridsBeloningToCluster[k].append(nG)
 
-
-
     uniqueNeighbourList = UniqueNeighbourGridsBeloningToCluster(neighbourGridsBeloningToCluster)
     listOfLengths = list(len(a) for a in uniqueNeighbourList)
 
-    NumOfVisuals = max(listOfLengths)
-    NumOfClusters = K
-    print(NumOfVisuals)
-    print(NumOfClusters)
+    NumOfColumns = max(listOfLengths)
+    NumOfRows = K
+    print(NumOfColumns)
+    print(NumOfRows)
     
-    G = np.empty(shape=(NumOfClusters,NumOfVisuals),dtype=object)
-    for i in range(NumOfClusters):
-        for j in range(NumOfVisuals):
+    G = np.empty(shape=(NumOfRows,NumOfColumns),dtype=object)
+    for i in range(NumOfRows):
+        for j in range(NumOfColumns):
             if j < listOfLengths[sortList[i]]:
                 G[i][j] = uniqueNeighbourList[sortList[i]][j]
             else:
@@ -386,18 +444,18 @@ if __name__ == '__main__':
     figClass = plotGridFig()
     print('I made an instance.')
     
-    figClass.initializeClusterPlot(N,NumOfClusters,NumOfVisuals)
+    figClass.initializeClusterPlot(N,NumOfRows,NumOfColumns)
     print('Initialized the figure.')
 
     figClass.plotClusters(G)
-    print('Plotted the local features.')
+    print('Plotted the local features. Now saving the figure.')
 
     for i in range(K):
         Estr = "%3.3g" %(EClusters[sortList[i]])
         figClass.axMat[i][0][0].text(-0.2,0.5,Estr,ha='right',va='center',size=50)
 
     
-    figClass.fig.savefig('mytest.png',dpi=int(figClass.dpi*3))
+    figClass.fig.savefig('TestWithRandomGeneratedTrainingset.eps',dpi=int(figClass.dpi*1))
                 
             
         
