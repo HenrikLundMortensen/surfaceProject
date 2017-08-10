@@ -54,7 +54,7 @@ def findOptimum(size):
         E1 = EBondFeatureGrid(surface_temp)
         dE = E2 - E1
         if dE > 0:                                    # We have a worse new surface
-            if np.exp(-dE/3) < np.random.random():    # If much worse, higher chance to disregard
+            if np.exp(-dE/2) < np.random.random():    # If much worse, higher chance to disregard
                 surface = np.copy(surface_temp)       # Disregard new surface
         if E2 < -198:
             print(iter)
@@ -118,7 +118,8 @@ def findOptimumAnimation(size):
 if __name__ == '__main__':
     import surfaceProject.energycalculations.calcenergy as ce
     import surfaceProject.energycalculations.findStructure as fs
-    surface = findOptimum(5)
+    for i in range(5):
+        surface = findOptimum(5)
     surface2 = fs.findOptimum(5)
     print('The found surface is:',surface)
     print('With energy:',ce.calculateEnergy(surface,5),' and ', EBondFeatureGrid(surface))
