@@ -21,6 +21,8 @@ fig = plt.figure()
 ax = fig.gca()
 nRand,binsRand,patchesRand = ax.hist(ERand,30,normed=1,alpha=0.5)
 nMonteC,binsMonteC,patchesMonteC = ax.hist(EMonteC,30,normed=1,alpha=0.5)
+
+ax.legend(['Random','Monte Carlo'])
 ax.set_xlabel('Energy')
 ax.set_ylabel('Normalized count')
 ax.set_title('Density of states')

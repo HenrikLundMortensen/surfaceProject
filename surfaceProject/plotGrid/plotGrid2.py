@@ -368,7 +368,7 @@ if __name__ == '__main__':
         
 
     N = 5
-    NTrain = 1000
+    NTrain = 10000
     NTest = 200
     K = 60
 
