@@ -92,14 +92,16 @@ if __name__ == '__main__':
 
     Na = 18
     Nf = 6
-    Nvalidations = 10
-    Nlearn = 50
-    Nk = 10  # Number of repetitions with different number of clusters
-    k_array = np.arange(1, Nk+1)*10
+    Nvalidations = 2
+    Nlearn = 10
+    Nk = 3  # Number of repetitions with different number of clusters
+    k_array = np.arange(1, Nk+1)*100+100
     error_array = np.zeros((Nlearn, Nk))
-    Ndata_max = 1000
+    Ndata_max = 10000
     X, E = fs.generateTraining(5, Ndata_max)
-    Ndata_array = np.logspace(1, 3, Nlearn).astype(int)
+    Ndata_array = np.logspace(1, 4, Nlearn).astype(int)
+    N_unique_clusters = np.zeros((Nlearn, Nk))
+    N_unique_motives = np.zeros((Nlearn, Nk))
     for m in range(Nk):
         k = k_array[m]
         k = 60
@@ -134,7 +136,18 @@ if __name__ == '__main__':
                 Etest_predict = np.dot(clusterNumMat_test, Ecluster)
                 error = np.dot(Etest-Etest_predict, Etest-Etest_predict)/Ntest
                 error_array[i][m] += error
-    error_array /= 10
+                N_unique_clusters[i][m] += np.size(np.unique(kmeans.cluster_centers_))
+
+                # Calculate the number of unique motives
+                Ng_train = np.size(i_train,0)
+                motive_list = np.reshape(Ftrain,(Ng_train*Na,Nf))
+                unique_motives = np.unique(motive_list, axis=0)
+                N_unique_motives[i][m] += np.size(unique_motives, axis=0)
+    error_array /= Nvalidations
+    N_unique_clusters /= Nvalidations
+    N_unique_motives /= Nvalidations
+    print("N_unique_clusters\n", N_unique_clusters)
+    print("N_unique_motives\n", N_unique_motives)
     for m in range(Nk):
         plt.loglog(Ndata_array, error_array[:, m], label = "k = %i" %(k_array[m]))
     plt.title("Learning Curve")
@@ -142,19 +155,3 @@ if __name__ == '__main__':
     plt.ylabel("error")
     plt.legend(loc=1)
     plt.show()
-    
-    '''
-    Nval = 10
-    Ndata = 100
-    Ntrain = int(Ndata/Nval)
-    X = np.arange(Ndata)
-    for i in range(Nval):
-        [Xtrain1, Xtest, Xtrain2] = np.split(X, [Ntrain*i, Ntrain*(i+1)])
-        Xtrain = np.r_[Xtrain1, Xtrain2]
-        
-        print("Xtrain =", X[Xtrain])
-        print("Xtest =", X[Xtest])
-    #indices = list(range(3, 5)) + list(range(7, 9))
-    #X1 = np.take(X, indices)
-    #print(X1)
-    '''
