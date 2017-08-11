@@ -19,8 +19,9 @@ X, EMonteC = fs.generateTraining(N, Ntest)
 
 fig = plt.figure()
 ax = fig.gca()
-nRand,binsRand,patchesRand = ax.hist(ERand,30,alpha=0.2)
-nMonteC,binsMonteC,patchesMonteC = ax.hist(EMonteC,30,alpha=0.2)
+nRand,binsRand,patchesRand = ax.hist(ERand,30,alpha=0.8)
+nMonteC,binsMonteC,patchesMonteC = ax.hist(EMonteC,30,alpha=0.8)
+
 
 ax.legend(['Random','Monte Carlo'])
 ax.set_xlabel('Energy')
