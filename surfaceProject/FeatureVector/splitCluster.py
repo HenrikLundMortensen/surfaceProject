@@ -23,15 +23,15 @@ class clusterHandler:
 
         # Find data belonging to this cluster
         (numberOfGrids, numberOfFeatureVectors, numberOfFeatures) = self.Features.shape
-        Features = self.Features.reshape(numberOfGrids*numberOfFeatureVectors, numberOfFeatures)
+        Features = self.Features.reshape(numberOfGrids * numberOfFeatureVectors, numberOfFeatures)
         clusterList = self.Kmeans.predict(Features)
-        clusterList = clusterList.reshape(numberOfGrids,numberOfFeatureVectors)
+        clusterList = clusterList.reshape(numberOfGrids, numberOfFeatureVectors)
 
         f = []
         # Find feature vectors belonging t
         for i in range(numberOfGrids):
             for j in range(numberOfFeatureVectors):
-                if clusterList[i,j] == minCluster:
+                if clusterList[i, j] == minCluster:
                     featureVector = self.Features[i][j]
                     f.append(featureVector)
                     
@@ -46,7 +46,8 @@ class clusterHandler:
         self.Clusters, self.Kmeans = gcnm.getClusterNumberMatrixTraining(Features, self.K)
         self.Clusters = np.asarray(self.Clusters)
         self.Features = Features
-    
+
+        
 if __name__ == '__main__':
 
     # Generate some data
