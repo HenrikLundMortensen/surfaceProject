@@ -19,17 +19,16 @@ X, EMonteC = fs.generateTraining(N, Ntest)
 
 fig = plt.figure()
 ax = fig.gca()
-nRand,binsRand,patchesRand = ax.hist(ERand,30,normed=1,alpha=0.5)
-nMonteC,binsMonteC,patchesMonteC = ax.hist(EMonteC,30,normed=1,alpha=0.5)
+nRand,binsRand,patchesRand = ax.hist(ERand,30,alpha=0.5)
+nMonteC,binsMonteC,patchesMonteC = ax.hist(EMonteC,30,alpha=0.5)
 
 ax.legend(['Random','Monte Carlo'])
 ax.set_xlabel('Energy')
-ax.set_ylabel('Normalized count')
+ax.set_ylabel('Count')
 ax.set_title('Density of states')
-ax.text(0.06,0.8,"Sample size = %g" %(Ntest),size=10,transform=ax.transAxes)
+ax.set_ylim([0 ,1850])
+ax.text(0.06,0.85,"Sample size = %g" %(Ntest),size=10,transform=ax.transAxes)
 fig.savefig('densityOfStates.png')
-
-
 
 
 # Construc all possible local environments
