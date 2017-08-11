@@ -56,7 +56,7 @@ def getClusterNumberMatrixTraining(F,K):
     CNmatrix = []
     for c in clusterList:
         CNmatrix.append(np.bincount(c))
-
+    
     return [np.array(CNmatrix),kmeans_result]
 
 
@@ -89,7 +89,6 @@ def getClusterNumberMatrix(F,kmeans_result):
     CNmatrix = []
     for c in clusterList:
         CNmatrix.append(np.bincount(c))
-
     return np.array(CNmatrix)
 
 
