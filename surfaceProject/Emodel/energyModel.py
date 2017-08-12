@@ -77,7 +77,6 @@ if __name__ == '__main__':
 
         clusterNumMatTrain,kmeans_result = getClusterNumberMatrixTraining(FTrain,K)
         clusterNumMatTest = getClusterNumberMatrix(FTest,kmeans_result,K)    
-    
         EC = createEnergyModel(clusterNumMatTrain,ETrain)
 
         EModel = np.dot(clusterNumMatTest,EC)
