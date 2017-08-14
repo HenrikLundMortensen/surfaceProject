@@ -31,6 +31,7 @@ def expandedF2compactF(F, k):
 
     # Extract cluster-lables
     F = kmeans.labels_
+    N_notEmptyClusters = np.size(np.unique(F,0))
 
     # Reshape back into seperate grids
     F = np.reshape(F, (Ng, Na))
@@ -41,7 +42,7 @@ def expandedF2compactF(F, k):
     for i in range(Ng):
         ClusterNumMat[i, :] = np.bincount(F[i, :], minlength=k)
 
-    return [ClusterNumMat, kmeans]
+    return [ClusterNumMat, kmeans, N_notEmptyClusters]
 
 
 def getClusterEnergies(Xtrain, Etrain):
@@ -54,6 +55,7 @@ def clusterNumMatFromKmeans(Xtest, kmeans):
     # (Nf features for each atom)
     Ftest = fv.getBondFeatureVectors(Xtest)
     (Ntest, Na, Nf) = np.shape(Ftest)
+    k = np.size(kmeans.cluster_centers_, 0)
     
     # Reduces the Nf features for each atom into one number
     # describing which cluster it
@@ -92,19 +94,19 @@ if __name__ == '__main__':
 
     Na = 18
     Nf = 6
-    Nvalidations = 2
-    Nlearn = 10
+    Nvalidations = 10
+    Nlearn = 500
     Nk = 3  # Number of repetitions with different number of clusters
-    k_array = np.arange(1, Nk+1)*100+100
+    k_array = np.arange(1, Nk+1)*40
     error_array = np.zeros((Nlearn, Nk))
-    Ndata_max = 10000
+    Ndata_max = 100000
     X, E = fs.generateTraining(5, Ndata_max)
-    Ndata_array = np.logspace(1, 4, Nlearn).astype(int)
+    Ndata_array = np.logspace(1, 5, Nlearn).astype(int)
     N_unique_clusters = np.zeros((Nlearn, Nk))
     N_unique_motives = np.zeros((Nlearn, Nk))
+    N_notEmptyClusters_array = np.zeros((Nlearn, Nk))
     for m in range(Nk):
         k = k_array[m]
-        k = 60
         for i in range(Nlearn):
             Ndata = Ndata_array[i]
             Ntest = int(Ndata/Nvalidations)
@@ -123,7 +125,8 @@ if __name__ == '__main__':
 
                 # Apply clustering
                 Ftrain = fv.getBondFeatureVectors(Xtrain)
-                [Ftrain_compact, kmeans] = expandedF2compactF(Ftrain, k)
+                [Ftrain_compact, kmeans, N_notEmptyClusters] = expandedF2compactF(Ftrain, k)
+                
                 
                 # Calculate cluster energies
                 Ecluster = getClusterEnergies(Ftrain_compact, Etrain)
@@ -136,18 +139,22 @@ if __name__ == '__main__':
                 Etest_predict = np.dot(clusterNumMat_test, Ecluster)
                 error = np.dot(Etest-Etest_predict, Etest-Etest_predict)/Ntest
                 error_array[i][m] += error
-                N_unique_clusters[i][m] += np.size(np.unique(kmeans.cluster_centers_))
+                N_unique_clusters[i][m] += np.size(np.unique(kmeans.cluster_centers_, axis=0),0)
 
                 # Calculate the number of unique motives
-                Ng_train = np.size(i_train,0)
-                motive_list = np.reshape(Ftrain,(Ng_train*Na,Nf))
+                Ng_train = np.size(i_train, 0)
+                motive_list = np.reshape(Ftrain, (Ng_train*Na, Nf))
                 unique_motives = np.unique(motive_list, axis=0)
                 N_unique_motives[i][m] += np.size(unique_motives, axis=0)
+                N_notEmptyClusters_array[i][m] += N_notEmptyClusters
+                print(np.shape(kmeans.cluster_centers_))
     error_array /= Nvalidations
     N_unique_clusters /= Nvalidations
     N_unique_motives /= Nvalidations
+    N_notEmptyClusters_array /= Nvalidations
     print("N_unique_clusters\n", N_unique_clusters)
     print("N_unique_motives\n", N_unique_motives)
+    print("N_notEmptyClusters\n", N_notEmptyClusters_array)
     for m in range(Nk):
         plt.loglog(Ndata_array, error_array[:, m], label = "k = %i" %(k_array[m]))
     plt.title("Learning Curve")
