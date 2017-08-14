@@ -5,7 +5,7 @@ import surfaceProject.FeatureVector.featureVector as fv
 import numpy as np
 
 
-class clusterHandler:
+class ClusterHandler:
     """ Class to handle clustering. Can split the cluster in several ways.
 
     #### Input ####
@@ -65,6 +65,9 @@ class clusterHandler:
         newClusters, newKmeans = gcnm.getClusterNumberMatrixTraining(f, 2)
         newCentroids = newKmeans.cluster_centers_
 
+        # Update the number of clusters
+        self.K = self.K + 1
+
         # Now add them to the existing clusters
         self.Kmeans.cluster_centers_ = np.delete(self.Kmeans.cluster_centers_, minCluster, 0)
         self.Kmeans.cluster_centers_ = np.append(self.Kmeans.cluster_centers_, newCentroids, 0)
@@ -74,8 +77,60 @@ class clusterHandler:
         clusterList = self.Kmeans.labels_.reshape(numberOfGrids, numberOfFeatureVectors)
         CNmatrix = []
         for c in clusterList:
-            CNmatrix.append(np.bincount(c))
-        self.Clusters = np.asarray(CNmatrix)
+            CNmatrix.append(np.bincount(c, minlength=self.K))
+        self.Clusters = np.array(CNmatrix)
+
+    def splitClusterLargest(self):
+        # largestCluster = self.Clusters.sum(axis=0).argmax()   # If one just wants the cluster with most feature vectors in
+
+        # Data about clusters
+        (numberOfGrids, numberOfFeatureVectors, numberOfFeatures) = self.Features.shape
+        Features = self.Features.reshape(numberOfGrids * numberOfFeatureVectors, numberOfFeatures)
+        clusterList = self.Kmeans.predict(Features)
+        clusterList = clusterList.reshape(numberOfGrids, numberOfFeatureVectors)
+
+        # Find cluster with most unique feature vectors
+        f = [[] for x in range(self.K)]
+
+        for i in range(numberOfGrids):
+            for j in range(numberOfFeatureVectors):
+                clusterNumber = clusterList[i, j]
+                featureVector = self.Features[i][j].tolist()
+                if featureVector not in f[clusterNumber]:
+                    f[clusterNumber].append(featureVector)
+
+        for k in range(self.K):
+            f[k] = len(f[k])
+        largestCluster = np.argmax(np.array(f))
+            
+        # Find the feature vectors belonging to largest cluster
+        f = []
+        for i in range(numberOfGrids):
+            for j in range(numberOfFeatureVectors):
+                if clusterList[i, j] == largestCluster:
+                    featureVector = self.Features[i][j]
+                    f.append(featureVector)
+        f = [f]  # Put it into a "grid" to make it work with getClusterNumberMatrixTraining
+        f = np.asarray(f)
+        
+        # Now cluster this into two new clusters
+        newClusters, newKmeans = gcnm.getClusterNumberMatrixTraining(f, 2)
+        newCentroids = newKmeans.cluster_centers_
+
+        # Update the number of clusters
+        self.K = self.K + 1
+
+        # Now add them to the existing clusters
+        self.Kmeans.cluster_centers_ = np.delete(self.Kmeans.cluster_centers_, largestCluster, 0)
+        self.Kmeans.cluster_centers_ = np.append(self.Kmeans.cluster_centers_, newCentroids, 0)
+        self.Kmeans.labels_ = self.Kmeans.predict(Features)
+        
+        # For each grid count how many cluster type it contains
+        clusterList = self.Kmeans.labels_.reshape(numberOfGrids, numberOfFeatureVectors)
+        CNmatrix = []
+        for c in clusterList:
+            CNmatrix.append(np.bincount(c, minlength=self.K))
+        self.Clusters = np.array(CNmatrix)
 
     def doClustering(self):
         Features = fv.getBondFeatureVectors(self.Data)
@@ -88,12 +143,14 @@ if __name__ == '__main__':
 
     # Generate some data
     surfaceSize = 5
-    dataSize = 10
-    clusters = 3
+    dataSize = 2
+    clusters = 2
     Data, Energy = fswf.generateTraining(surfaceSize, dataSize)
-    myClusterandler = clusterHandler(Data, Energy, clusters)
+    myClusterandler = ClusterHandler(Data, Energy, clusters)
     myClusterandler.doClustering()
-
+    myClusterandler.splitClusterLargest()
+    
+    """
     # Calculate energy of the clusters
     energyClusters = em.createEnergyModel(myClusterandler.Clusters, myClusterandler.Energy)
     print('The energy of the clusters are:', energyClusters)
@@ -110,3 +167,4 @@ if __name__ == '__main__':
     energyClusters = em.createEnergyModel(myClusterandler.Clusters, myClusterandler.Energy)
     print('The energy of the clusters after splitting twice are:', energyClusters)
     print('The number of atoms in each cluster after splitting twice  are:', myClusterandler.Clusters)
+    """

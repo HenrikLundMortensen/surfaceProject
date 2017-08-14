@@ -18,8 +18,7 @@ def randomgrid(n):
     return b
 
 
-
-def getClusterNumberMatrixTraining(F,K):
+def getClusterNumberMatrixTraining(F, K):
     """
     Takes a set of feature vectors, clusters them into K clusters and return a vector with how
     many of a cluster type that appears for each grid
@@ -32,11 +31,9 @@ def getClusterNumberMatrixTraining(F,K):
     CNmatrik: Numpy array with number of each cluster type for each grid
     kmeans_result: Instance of the class created by sklearns KMeans. Contains centroids and more. 
     """
-    
-
 
     # Number of grids, feature vectors and features
-    (G,Ng,Nf)= F.shape
+    (G, Ng, Nf)= F.shape
 
     # Reshape F into a single large array containing feature vectors
     F = F.reshape(G*Ng,Nf)
@@ -51,16 +48,15 @@ def getClusterNumberMatrixTraining(F,K):
     # Reshape into G x Ng matrix
     clusterList = clusterList.reshape(G,Ng)
 
-
+    
     # For each grid, count how many of a cluster type it contains
     CNmatrix = []
     for c in clusterList:
-        CNmatrix.append(np.bincount(c))
+        CNmatrix.append(np.bincount(c, minlength=K))
+
+    return [np.array(CNmatrix), kmeans_result]
     
-    return [np.array(CNmatrix),kmeans_result]
-
-
-def getClusterNumberMatrix(F,kmeans_result):
+def getClusterNumberMatrix(F, kmeans_result):
     """
     Takes a set of feature vectors, predicts which clusters they belong to and returns a vector with how
     many of a cluster type that appears for each grid
@@ -84,11 +80,11 @@ def getClusterNumberMatrix(F,kmeans_result):
 
     # Reshape into G x Ng matrix
     clusterList = clusterList.reshape(G,Ng)
-
     # For each grid, count how many of a cluster type it contains
+    K = len(kmeans_result.cluster_centers_) # Number of clusters
     CNmatrix = []
     for c in clusterList:
-        CNmatrix.append(np.bincount(c))
+        CNmatrix.append(np.bincount(c, minlength=K))
     return np.array(CNmatrix)
 
 
