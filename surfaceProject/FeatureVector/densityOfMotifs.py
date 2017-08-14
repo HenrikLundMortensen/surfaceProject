@@ -7,9 +7,9 @@ import surfaceProject.FeatureVector.findStructureWithFeature as fs
 from surfaceProject.FeatureVector.featureVector import *
 from surfaceProject.FeatureVector.learningCurve import *
 from surfaceProject.FeatureVector.getClusterNumberMatrix import *
+from surfaceProject.plotGrid.plotGrid2 import *
 import time
-
-
+import pickle
 
 
 
@@ -42,25 +42,27 @@ def clusterNumMatFromKmeans(Ftest, kmeans):
 
 
 
-
 t1 = time.time()
 
 
 N = 5
-NTotal = 10000
+NTotal = 1000
 
 #### Generate large random set
-ERand = []
-XRand = []
+# ERand = []
+# XRand = []
 
-for i in range(NTotal):
-    g = randomgrid(N)
-    XRand.append(g)
-    ERand.append(EBondFeatureGrid(g))
+# for i in range(NTotal):
+#     g = randomgrid(N)
+#     XRand.append(g)
+#     ERand.append(EBondFeatureGrid(g))
 
 #### Generate large Monte Carlo set
-XMC, EMC = fs.generateTraining(N, NTotal)
+# XMC, EMC = fs.generateTraining(N, NTotal)
 
+f = open('store.pckl','rb')
+[XRand,XMC] = pickle.load(f)
+f.close()
 
 # Construct all possible local environments
 
@@ -142,8 +144,6 @@ fvUniqueSorted = np.array(fvUnique)[sortList]
 gridsUniqueSorted = uniqueGrids[sortList]
 
 
-
-
 # For the set of grids, calculate how many times a unique feature appears
 ################################################## RANDOM
 # Generate random grids 
@@ -167,9 +167,16 @@ for uf in fvUniqueSorted:
         if np.array_equal(f,uf):
             fvCountRand[m] +=1
     m += 1
-            
+
+
+
+
+
+
+
+    
 ################################################## Monte Carlo
-gridMC,E = XMC,EMC
+gridMC= XMC
 
 # Find all feature vectors
 Flist = []
@@ -192,7 +199,7 @@ for uf in fvUniqueSorted:
 
 
 # Devide into 15 bins
-NBins = 10
+NBins = 15
 
 
 bins = np.linspace(-0.01,len(fvUnique),NBins+1)
@@ -210,19 +217,102 @@ for i in range(len(fvUnique)):
 
 ################################################## Plot
 
+
+
+
+
+
+
+
+
 fig = plt.figure()
 ax = fig.gca()
-nRand,binsRand,patchesRand = ax.hist(ERand,30,normed=1 ,alpha=0.5)
+# nRand,binsRand,patchesRand = ax.hist(ERand,30,normed=1 ,alpha=0.5)
 # ax.bar(bins[0:NBins]+10,fvUniqueRandBins,width = len(fvUnique)/NBins*0.3,alpha = 0.8)
 # ax.bar(bins[0:NBins]-10,fvUniqueMCBins,width = len(fvUnique)/NBins*0.3,alpha = 0.8)
 ax.plot(bins[0:NBins],fvUniqueRandBins,'b')
 ax.plot(bins[0:NBins],fvUniqueMCBins,'r')
 ax.set_xlim([-10,len(fvUnique)+10])
-ax.set_xlabel('Energy')
+ax.set_xlabel('Motif energy')
 ax.set_xticks([])
 ax.set_ylabel('Count')
 ax.set_title('Motif count')
-fig.savefig('MotifCount.png')
+
+
+
+
+# Create axes instance for grid plotting
+
+
+
+x = 0.3
+y = 0.7
+width = 0.1
+height = 0.1
+sep = 0.02
+
+
+ax1 = plt.axes([x,y ,width,height])
+ax2 = plt.axes([x+width+sep,y,width,height])
+
+plotGridInAx(gridsUniqueSorted[6],ax1)
+plotGridInAx(gridsUniqueSorted[9],ax2)
+
+
+fig.add_axes(ax1)
+fig.add_axes(ax2)
+
+x2 = 0.55
+y2 = 0.4
+
+ax3 = plt.axes([x2,y2 ,width,height])
+ax4 = plt.axes([x2+width+sep,y2,width,height])
+
+plotGridInAx(gridsUniqueSorted[-1],ax3)
+plotGridInAx(gridsUniqueSorted[-2],ax4)
+
+
+fig.add_axes(ax3)
+fig.add_axes(ax4)
+
+# Add dots
+pdot=[]
+dotsep = 0.02
+for i in range(3):
+    pdot.append(   patches.Circle(   (x+2*(width+sep)+i*dotsep,y+0.07),radius=0.005,color='black',transform=ax.transAxes))
+    ax.add_patch(pdot[i])
+
+
+# Add dots2
+pdot2=[]
+dotsep = 0.02
+for i in range(3):
+    pdot2.append(   patches.Circle(   (x2+2*(width+sep)+i*dotsep+0.07,y2-0.03),radius=0.005,color='black',transform=ax.transAxes))
+    ax.add_patch(pdot2[i])    
+
+
+# Add ellipse1
+ellipse1 = patches.Ellipse((0.04,0.68),0.07,0.6,transform=ax.transAxes,fill=False,ls='dashed')
+ax.add_patch(ellipse1)
+
+
+# Add ellipse2
+ellipse2 = patches.Ellipse((0.74,0.08),0.3,0.15,transform=ax.transAxes,fill=False,ls='dashed')
+ax.add_patch(ellipse2)
+
+# Add arrow1
+arrow1 = patches.Arrow(x-0.1,y+0.1,-0.1,-0.1,width=0.02,transform=ax.transAxes,color='black')
+ax.add_patch(arrow1)
+
+# Add arrow1
+arrow2 = patches.Arrow(x2+0.1,y2-0.05,0.01,-0.14,width=0.02,transform=ax.transAxes,color='black')
+ax.add_patch(arrow2)
+
+ax.legend(['Random','Monte Carlo'])
+
+fig.savefig('MotifCountTest.png')
+
+
 
 t2 = time.time()-t1
 print(t2)
