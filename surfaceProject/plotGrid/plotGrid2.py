@@ -367,72 +367,72 @@ if __name__ == '__main__':
 
         
 
-    N = 5
-    NTrain = 10000
-    NTest = 200
-    K = 60
+    # N = 5
+    # NTrain = 10000
+    # NTest = 200
+    # K = 60
 
-    # Generate training set with Monte Carlo
-    X, E = fs.generateTraining(N, NTrain + NTest)
+    # # Generate training set with Monte Carlo
+    # X, E = fs.generateTraining(N, NTrain + NTest)
 
-    # Generate random training sest
-    XRand = np.array(list(randomgrid(N) for i in range(NTrain + NTest)))
-    ERand = np.array(list(cf.EBondFeatureGrid(g) for g in XRand ))
-    X = XRand
-    E = ERand
+    # # Generate random training sest
+    # XRand = np.array(list(randomgrid(N) for i in range(NTrain + NTest)))
+    # ERand = np.array(list(cf.EBondFeatureGrid(g) for g in XRand ))
+    # X = XRand
+    # E = ERand
 
     
 
-    # Split into test and training
-    Xtrain, Xtest = X[0:NTrain], X[NTrain:NTrain+NTest]
-    Etrain, Etest = E[0:NTrain], E[NTrain:NTrain+NTest]
+    # # Split into test and training
+    # Xtrain, Xtest = X[0:NTrain], X[NTrain:NTrain+NTest]
+    # Etrain, Etest = E[0:NTrain], E[NTrain:NTrain+NTest]
 
-    # Apply clustering
-    Ftrain = fv.getBondFeatureVectors(Xtrain)
-    [Ftrain_compact, kmeans] = lc.expandedF2compactF(Ftrain, K)
+    # # Apply clustering
+    # Ftrain = fv.getBondFeatureVectors(Xtrain)
+    # [Ftrain_compact, kmeans] = lc.expandedF2compactF(Ftrain, K)
 
-    (Ng, Na, Nf) = np.shape(Ftrain)
+    # (Ng, Na, Nf) = np.shape(Ftrain)
     
-    # Reshape data for clustering
-    F = np.reshape(Ftrain, (Ng*Na, Nf))
-    clistMat = kmeans.predict(F)
-    clistMat = np.reshape(clistMat, (Ng, Na))
+    # # Reshape data for clustering
+    # F = np.reshape(Ftrain, (Ng*Na, Nf))
+    # clistMat = kmeans.predict(F)
+    # clistMat = np.reshape(clistMat, (Ng, Na))
 
-    EClusters = np.dot(np.linalg.pinv(Ftrain_compact),Etrain)
+    # EClusters = np.dot(np.linalg.pinv(Ftrain_compact),Etrain)
 
-    sortList = np.argsort(EClusters)[::-1]
-    EClustersSorted = EClusters[sortList]
+    # sortList = np.argsort(EClusters)[::-1]
+    # EClustersSorted = EClusters[sortList]
     
-    neighbourGridsBeloningToCluster = list(range(K))
-    for i in range(K):
-        neighbourGridsBeloningToCluster[i] = []
+    # neighbourGridsBeloningToCluster = list(range(K))
+    # for i in range(K):
+    #     neighbourGridsBeloningToCluster[i] = []
         
-    for i in range(NTrain):
-        indicies = getIndiciesWithAtoms(Xtrain[i])
-        clist = clistMat[i]
-        indiciesBelongingToCluster = getIndiciesBelongingToCluster(indicies,clist,K)
+    # for i in range(NTrain):
+    #     indicies = getIndiciesWithAtoms(Xtrain[i])
+    #     clist = clistMat[i]
+    #     indiciesBelongingToCluster = getIndiciesBelongingToCluster(indicies,clist,K)
 
-        for k in range(K):
-            if len(indiciesBelongingToCluster[k]) != 0:
-                for j in indiciesBelongingToCluster[k]:
-                    nG = getNeighbourGrid(Xtrain[i],j[0],j[1])
-                    neighbourGridsBeloningToCluster[k].append(nG)
+    #     for k in range(K):
+    #         if len(indiciesBelongingToCluster[k]) != 0:
+    #             for j in indiciesBelongingToCluster[k]:
+    #                 nG = getNeighbourGrid(Xtrain[i],j[0],j[1])
+    #                 neighbourGridsBeloningToCluster[k].append(nG)
 
-    uniqueNeighbourList = UniqueNeighbourGridsBeloningToCluster(neighbourGridsBeloningToCluster)
-    listOfLengths = list(len(a) for a in uniqueNeighbourList)
+    # uniqueNeighbourList = UniqueNeighbourGridsBeloningToCluster(neighbourGridsBeloningToCluster)
+    # listOfLengths = list(len(a) for a in uniqueNeighbourList)
 
-    NumOfColumns = max(listOfLengths)
-    NumOfRows = K
-    print(NumOfColumns)
-    print(NumOfRows)
+    # NumOfColumns = max(listOfLengths)
+    # NumOfRows = K
+    # print(NumOfColumns)
+    # print(NumOfRows)
     
-    G = np.empty(shape=(NumOfRows,NumOfColumns),dtype=object)
-    for i in range(NumOfRows):
-        for j in range(NumOfColumns):
-            if j < listOfLengths[sortList[i]]:
-                G[i][j] = uniqueNeighbourList[sortList[i]][j]
-            else:
-                G[i][j] = np.zeros(shape=(3,3))
+    # G = np.empty(shape=(NumOfRows,NumOfColumns),dtype=object)
+    # for i in range(NumOfRows):
+    #     for j in range(NumOfColumns):
+    #         if j < listOfLengths[sortList[i]]:
+    #             G[i][j] = uniqueNeighbourList[sortList[i]][j]
+    #         else:
+    #             G[i][j] = np.zeros(shape=(3,3))
 
 
 
@@ -441,27 +441,101 @@ if __name__ == '__main__':
 
 
                 
-    figClass = plotGridFig()
-    print('I made an instance.')
+    # figClass = plotGridFig()
+    # print('I made an instance.')
     
-    figClass.initializeClusterPlot(N,NumOfRows,NumOfColumns)
-    print('Initialized the figure.')
+    # figClass.initializeClusterPlot(N,NumOfRows,NumOfColumns)
+    # print('Initialized the figure.')
 
-    figClass.plotClusters(G)
-    print('Plotted the local features. Now saving the figure.')
+    # figClass.plotClusters(G)
+    # print('Plotted the local features. Now saving the figure.')
 
-    for i in range(K):
-        Estr = "%3.3g" %(EClusters[sortList[i]])
-        figClass.axMat[i][0][0].text(-0.2,0.5,Estr,ha='right',va='center',size=50)
+    # for i in range(K):
+    #     Estr = "%3.3g" %(EClusters[sortList[i]])
+    #     figClass.axMat[i][0][0].text(-0.2,0.5,Estr,ha='right',va='center',size=50)
 
     
-    figClass.fig.savefig('TestWithRandomGeneratedTrainingset.eps',dpi=int(figClass.dpi*1))
+    # figClass.fig.savefig('TestWithRandomGeneratedTrainingset.eps',dpi=int(figClass.dpi*1))
                 
             
         
     
+def plotGridInAx(g,ax):
+    """
+    Stand alone function for plotting a grid in a single axes instance
 
+    Input:
+    g: Grid to be plotted
+    ax: The axes where the grid is to be plotted. 
+
+    """
+    # Get system size
+    N = g.shape[0]
+    g = np.rot90(g,1)
     
+    # Initialize axes
+    ax.tick_params(bottom='off',left='off')
+    ax.tick_params(labelbottom='off',labelleft='off')
+
+    # Create all the circles. The color and radius are updated when the grids are plotted. 
+    p = []
+    for m in range(N**2):
+        p.append(patches.Circle(xy = (0,0), radius = 0))
+        ax.add_artist(p[m])
+
+
+    # Set facecolor to be purple'ish
+    ax.set_facecolor((0.9,0.8,1))
+
+    # Set x and y limits for the plot.
+    # Everything is plottede between 0 and 1. Choose limits to be -0.2 and 1.2.
+    # The +0.25 is due to the shearing if the grids.
+    ax.set_xlim([-0.2+0.25,1.2+0.25])
+    ax.set_ylim([-0.2,1.2])        
+
+    # Define the shearing matrix
+    shearMat = np.array([[1, 0.5],[0,1]])
+
+    # Specify the radius for each atom type
+    AgRadius = 1/N*0.95/2
+    ORadius = AgRadius/2
+
+    # List of coordinates between 0 and 1
+    xcoords = np.linspace(0,1,N)
+    ycoords = np.linspace(0,1,N)
+
+    # Update patches according to grid
+    m = 0
+    for i in range(N):
+        for j in range(N):
+
+            coord = (xcoords[i],ycoords[j])
+            coord = np.dot(shearMat,coord)
+
+
+            # Update center position and radius according to atom type
+            if g[i][j] == 0:
+                p[m].center = coord
+                p[m].radius = 0
+
+            if g[i][j] == 1:
+                p[m].center = coord
+                p[m].radius = AgRadius
+                p[m].set_color('blue')
+
+
+            if g[i][j] == 2:
+                p[m].center = coord
+                p[m].radius = ORadius                    
+                p[m].set_color('red')
+
+            m += 1
+
+
+
+
+
+
 
 
 

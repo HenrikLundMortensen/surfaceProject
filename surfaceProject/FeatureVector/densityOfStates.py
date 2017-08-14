@@ -8,7 +8,7 @@ from surfaceProject.FeatureVector.featureVector import *
 from surfaceProject.FeatureVector.learningCurve import *
 from surfaceProject.FeatureVector.getClusterNumberMatrix import *
 import time
-
+import pickle
 
 
 def getClusterNumberMatFromKmeansLabels(labelArray1D, Ng, Na, k):
@@ -41,16 +41,14 @@ def clusterNumMatFromKmeans(Ftest, kmeans):
 
 
 
-
-
 t1 = time.time()
 
 
 N = 5
 K = 60
 
-NTotal = 100000
-NTrain = 1000
+NTotal = 200000
+NTrain = 200
 NTest = NTotal-NTrain
 
 #### Generate large random set
@@ -69,6 +67,10 @@ XMC, EMC = fs.generateTraining(N, NTotal)
 XRandTrain , ERandTrain = XRand[0:NTrain],ERand[0:NTrain]
 XMCTrain , EMCTrain = XMC[0:NTrain],EMC[0:NTrain]
 
+f = open('store.pckl','wb')
+pickle.dump([XRandTrain,XMCTrain],f)
+f.close()
+
 XRandTest , ERandTest = XRand[NTrain:NTrain+NTest],ERand[NTrain:NTrain+NTest]
 XMCTest , EMCTest = XMC[NTrain:NTrain+NTest],EMC[NTrain:NTrain+NTest]
 
@@ -76,10 +78,10 @@ XMCTest , EMCTest = XMC[NTrain:NTrain+NTest],EMC[NTrain:NTrain+NTest]
 XTest = []
 ETest = []
 
-for i in range(NTrain):
+for i in range(NTest):
     XTest.append(XMCTest[i])
     ETest.append(EMCTest[i])
-for i in range(NTrain):
+for i in range(NTest):
     XTest.append(XRandTest[i])    
     ETest.append(ERandTest[i])
 
@@ -89,9 +91,9 @@ sortList = np.argsort(ETest)
 ETestSorted = np.array(ETest)[sortList]
 XTestSorted = np.array(XTest)[sortList]
 
-# Divide the set into 10 bins
-NTestBins = 10
-bins = np.linspace(min(ETest)-0.01,max(ETest)+0.01,NTestBins+1)
+# Divide the set into 8 bins
+NTestBins = 15
+bins = np.linspace(-181,max(ETest)+0.01,NTestBins+1)
 indexList = []
 XTestBins = []
 ETestBins = []
@@ -130,6 +132,10 @@ EMCcluster = getClusterEnergies(FMCTrain_compact, EMCTrain)
 #### Get error from each of the test set in the bins
 errorRandList = []
 errorMCList = []
+
+sigmaMCList = []
+sigmaRandList = []
+
 indexList = []
 for i in range(len(XTestBins)):
 
@@ -149,8 +155,15 @@ for i in range(len(XTestBins)):
 
         errorRand = np.dot(ETests-EPredictRand, ETests-EPredictRand)/len(ETests)
         errorMC = np.dot(ETests-EPredictMC, ETests-EPredictMC)/len(ETests)
+
+        varRand = np.dot(ETests-EPredictRand-errorRand, ETests-EPredictRand-errorRand)/len(ETests)
+        varMC = np.dot(ETests-EPredictMC-errorMC, ETests-EPredictMC-errorMC)/len(ETests)
+        
         errorRandList.append(errorRand)
         errorMCList.append(errorMC)
+
+        sigmaRandList.append(np.sqrt(varRand))
+        sigmaMCList.append(np.sqrt(varMC))
         indexList.append(i)
 
 
@@ -161,11 +174,18 @@ ax = fig.gca()
 
 nRand,binsRand,patchesRand = ax.hist(ERand,30,normed=1 ,alpha=0.5)
 nMonteC,binsMonteC,patchesMonteC = ax.hist(EMC,30,normed=1, alpha=0.5)
-nTest,binsTest,patchesTest = ax.hist(ETestBinsListForHist,30,normed=1 ,alpha=0.5)
+nTest,binsTest,patchesTest = ax.hist(ETestBinsListForHist,NTestBins,normed=1 ,alpha=0.5)
 
 axright = ax.twinx()
-axright.semilogy(np.array(bins)[indexList],errorRandList)
-axright.semilogy(np.array(bins)[indexList],errorMCList)
+
+binCenters = list((bins[i]+bins[i+1])/2 for i in range(len(bins)-1) )
+
+# axright.set_yscale('log',nonposy='clip')
+# axright.errorbar(np.array(bins)[indexList],errorRandList,yerr=sigmaRandList,color='blue')
+axright.semilogy(binCenters,errorRandList)
+# axright.semilogy(np.array(bins)[indexList],np.add(errorRandList,sigmaRandList),color='blue')
+# axright.semilogy(np.array(bins)[indexList],np.subtract(errorRandList,sigmaRandList),color='blue')
+axright.semilogy(binCenters,errorMCList)
 axright.set_ylim([min([min(errorRandList),min(errorMCList)])/4 ,max([max(errorRandList),max(errorMCList)])*8])
 axright.set_ylabel('Error')
 
@@ -173,10 +193,11 @@ ax.legend(['Random','Monte Carlo','Test'])
 ax.set_xlabel('Energy')
 ax.set_ylabel('Count')
 ax.set_title('Density of states')
+ax.set_yticklabels([])
 
 ax.text(0.06,0.90,"Sample size = %g" %(NTotal),size=10,transform=ax.transAxes)
 ax.text(0.06,0.85,"Training set size = %g" %(NTrain),size=10,transform=ax.transAxes)
-fig.savefig('densityOfStatesWithError.png')
+fig.savefig('densityOfStatesWithErrorAndErrorBars.png')
 t2 = time.time()-t1
 print(t2)
 
