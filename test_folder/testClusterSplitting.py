@@ -55,8 +55,8 @@ class LearningCurve:
         self.TrainingList = np.array(self.TrainingList)
 
     def plotCurve(self):
-        plt.plot(self.TrainingList, self.ErrorList, 'ro', label='Normal clustering')
-        plt.plot(self.TrainingList, self.ErrorListL, 'go', label='Clustering with splitting')
+        plt.plot(self.TrainingList, self.ErrorList, label='Normal clustering')
+        plt.plot(self.TrainingList, self.ErrorListL, label='Clustering with splitting')
         plt.xlabel('Training size')
         plt.ylabel('Error')
         plt.legend()
@@ -91,7 +91,7 @@ class LearningCurve:
         dataTest, energyTest = self.Data[trainingSize:], self.Energy[trainingSize:]
 
         # Do the clustering by creating half the clusters and then splitting until K clusters are achieved
-        myClusterhandler = ch.ClusterHandler(dataTrain, energyTrain, int(self.K / 2))
+        myClusterhandler = ch.ClusterHandler(dataTrain, energyTrain, 2)
         myClusterhandler.doClustering()
         while myClusterhandler.K < self.K:
             myClusterhandler.splitClusterLargest()
@@ -110,10 +110,10 @@ class LearningCurve:
 
         
 if __name__ == '__main__':
-    clusters = 150
-    datasize = 10000
+    clusters = 120
+    datasize = 20000
     surfacesize = 5
-    start, end, increment = 100, datasize, 10000
+    start, end, increment = 100, datasize, 1000
     myLearningCurve = LearningCurve(datasize, clusters, surfacesize)
 
     # Plot learning curves
